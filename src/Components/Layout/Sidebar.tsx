@@ -22,9 +22,8 @@ import {
   Logout as LogoutIcon,
   BusinessCenter as ProjectIcon,
   VpnKey as ApiKeyIcon,
-  Image as ImageIcon,
 } from '@mui/icons-material';
-import { DASHBOARD_PATHS, PROJECT_PATHS } from '../../Path';
+import { PROJECT_PATHS } from '../../Path';
 import { getUserInfo, type LoginResponse } from '../../Services/ApiServices';
 import { useAuth } from '../../Context/AuthContext';
 
@@ -41,7 +40,6 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { label: 'Projects', path: PROJECT_PATHS.LIST, icon: ProjectIcon },
   { label: 'API Keys', path: PROJECT_PATHS.API_KEYS, icon: ApiKeyIcon },
-  { label: 'Images', path: `${DASHBOARD_PATHS.HOME}/images`, icon: ImageIcon },
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }: SidebarProps) => {

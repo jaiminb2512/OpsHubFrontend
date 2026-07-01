@@ -31,10 +31,9 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
-import { AUTH_PATHS } from '../Path';
-import { loginService, isAuthenticated, getUserInfo } from '../Services/ApiServices';
+import { AUTH_PATHS, PROJECT_PATHS } from '../Path';
+import { loginService, isAuthenticated } from '../Services/ApiServices';
 import { useToast } from '../Utils/ToastContext';
-import { DASHBOARD_PATHS } from '../Path';
 
 const APP_BRAND =
   (typeof import.meta.env.VITE_APP_BRAND_NAME === 'string' && import.meta.env.VITE_APP_BRAND_NAME.trim()) ||
@@ -105,7 +104,7 @@ const Login = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       checkAuth().then(() => {
-        navigate(DASHBOARD_PATHS.HOME, { replace: true });
+        navigate(PROJECT_PATHS.LIST, { replace: true });
       });
     }
   }, [navigate, checkAuth]);
@@ -125,7 +124,7 @@ const Login = () => {
       if (response.success === 200 && response.data) {
         login(response.data.token, response.data);
         showSuccess('Login successful! Redirecting...', 'Success');
-        navigate(DASHBOARD_PATHS.HOME, { replace: true });
+        navigate(PROJECT_PATHS.LIST, { replace: true });
       } else {
         showError(response.message || 'Login failed', 'Login Failed');
       }
