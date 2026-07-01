@@ -10,10 +10,8 @@ import { RouteLoadingFallback } from './Config/lazyPage';
 import { useAuth } from './Context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
 import { AUTH_PATHS } from './Path';
-import RequireRoleContext from './Components/Common/RequireRoleContext';
 
 const Login = lazy(() => import('./Pages/Login'));
-const SelectRolePage = lazy(() => import('./Pages/SelectRolePage'));
 const DashboardLayout = lazy(() => import('./Components/Layout/DashboardLayout'));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -21,15 +19,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          bgcolor: 'background.default',
-        }}
-      >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', bgcolor: 'background.default' }}>
         <CircularProgress />
       </Box>
     );
@@ -43,44 +33,29 @@ function App() {
     <Provider store={store}>
       <ToastProvider>
         <ConfirmDialogProvider>
-        <Router>
-          <Suspense fallback={<RouteLoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<Navigate to={AUTH_PATHS.LOGIN} replace />} />
-              <Route path={AUTH_PATHS.LOGIN} element={<Login />} />
+          <Router>
+            <Suspense fallback={<RouteLoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<Navigate to={AUTH_PATHS.LOGIN} replace />} />
+                <Route path={AUTH_PATHS.LOGIN} element={<Login />} />
 
-              <Route
-                path={AUTH_PATHS.SELECT_ROLE}
-                element={
-                  <ProtectedRoute>
-                    <SelectRolePage />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <RequireRoleContext>
-                      <DashboardLayout />
-                    </RequireRoleContext>
-                  </ProtectedRoute>
-                }
-              >
-              {getAllRoutes().map((route) => (
                 <Route
-                  key={route.path}
-                  path={route.path}
-                  element={route.component()}
-                />
-              ))}
-            </Route>
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  {getAllRoutes().map((route) => (
+                    <Route key={route.path} path={route.path} element={route.component()} />
+                  ))}
+                </Route>
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-          <ToastDisplay />
-        </Router>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+            <ToastDisplay />
+          </Router>
         </ConfirmDialogProvider>
       </ToastProvider>
     </Provider>

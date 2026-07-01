@@ -38,69 +38,39 @@ import {
     Search as SearchIcon,
     BusinessCenter as ProjectIcon,
     VpnKey as VpnKeyIcon,
-    Upload as ImportIcon,
     DeleteForever as HardDeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getProjectsService, deleteProjectService, hardDeleteProjectService, type ProjectListItem } from '../../Services/ApiServices/projectServices';
 import { useToast } from '../../Utils/ToastContext';
 import { useConfirm } from '../../Utils/ConfirmDialogContext';
-import { PROJECT_PATHS, COMPANY_PATHS } from '../../Path';
+import { PROJECT_PATHS } from '../../Path';
 import usePageTitle from '../../hooks/usePageTitle';
-import { usePagePermissions } from '../../hooks/usePagePermissions';
 
 const ProjectList = () => {
     const navigate = useNavigate();
-    const permissions = usePagePermissions([
-        { key: 'create', endpointKey: 'createProject' },
-        { key: 'edit', endpointKey: 'updateProject', pathParams: { id: 'sample-id' } },
-        { key: 'delete', endpointKey: 'deleteProject', pathParams: { id: 'sample-id' } },
-        { key: 'createCompany', endpointKey: 'createCompany' },
-    ]);
 
     usePageTitle(
         'Projects',
         <Stack direction="row" spacing={2}>
-            {permissions.createCompany && (
-                <Tooltip title="Add Company" arrow>
-                    <Button
-                        variant="outlined"
-                        startIcon={<AddIcon />}
-                        onClick={() => navigate(COMPANY_PATHS.CREATE)}
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            minWidth: { xs: 0, md: 'auto' },
-                            '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 }, ml: { xs: 0, md: -0.5 } },
-                        }}
-                    >
-                        <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
-                            Add Company
-                        </Box>
-                    </Button>
-                </Tooltip>
-            )}
-            {permissions.create && (
-                <Tooltip title="Add Project" arrow>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={() => navigate(PROJECT_PATHS.CREATE)}
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            minWidth: { xs: 0, md: 'auto' },
-                            '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 }, ml: { xs: 0, md: -0.5 } },
-                        }}
-                    >
-                        <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
-                            Add Project
-                        </Box>
-                    </Button>
-                </Tooltip>
-            )}
+            <Tooltip title="Add Project" arrow>
+                <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => navigate(PROJECT_PATHS.CREATE)}
+                    sx={{
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        minWidth: { xs: 0, md: 'auto' },
+                        '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 }, ml: { xs: 0, md: -0.5 } },
+                    }}
+                >
+                    <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
+                        Add Project
+                    </Box>
+                </Button>
+            </Tooltip>
         </Stack>
     );
 
@@ -361,19 +331,15 @@ const ProjectList = () => {
                                         </TableCell>
                                         <TableCell align="right">
                                             <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                                                {permissions.edit && (
-                                                    <Tooltip title="Edit" arrow>
-                                                        <IconButton
-                                                            size="small"
-                                                            color="primary"
-                                                            onClick={() =>
-                                                                navigate(PROJECT_PATHS.EDIT.replace(':id', project.id))
-                                                            }
-                                                        >
-                                                            <EditIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
+                                                <Tooltip title="Edit" arrow>
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() => navigate(PROJECT_PATHS.EDIT.replace(':id', project.id))}
+                                                    >
+                                                        <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
                                                 <Tooltip title="Manage API Keys" arrow>
                                                     <IconButton
                                                         size="small"
@@ -382,40 +348,28 @@ const ProjectList = () => {
                                                         <VpnKeyIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
-                                                <Tooltip title="Import Data" arrow>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => navigate(`${PROJECT_PATHS.IMPORT}?projectId=${project.id}`)}
-                                                    >
-                                                        <ImportIcon fontSize="small" />
-                                                    </IconButton>
+                                                <Tooltip title="Delete" arrow>
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="error"
+                                                            onClick={() => handleDelete(project)}
+                                                        >
+                                                            <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
                                                 </Tooltip>
-                                                {permissions.delete && (
-                                                    <Tooltip title="Soft Delete" arrow>
-                                                        <span>
-                                                            <IconButton
-                                                                size="small"
-                                                                color="error"
-                                                                onClick={() => handleDelete(project)}
-                                                            >
-                                                                <DeleteIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </span>
-                                                    </Tooltip>
-                                                )}
-                                                {permissions.delete && (
-                                                    <Tooltip title="Hard Delete (removes all project data)" arrow>
-                                                        <span>
-                                                            <IconButton
-                                                                size="small"
-                                                                onClick={() => openHardDelete(project)}
-                                                                sx={{ color: 'error.dark' }}
-                                                            >
-                                                                <HardDeleteIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </span>
-                                                    </Tooltip>
-                                                )}
+                                                <Tooltip title="Hard Delete" arrow>
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => openHardDelete(project)}
+                                                            sx={{ color: 'error.dark' }}
+                                                        >
+                                                            <HardDeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
                                             </Stack>
                                         </TableCell>
                                     </TableRow>

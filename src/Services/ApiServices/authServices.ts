@@ -1,7 +1,12 @@
 import apiInstance from '../../Utils/ApiUtils';
 import type { ApiResponse } from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
-import type { UserResponse } from './userServices';
+export interface UserResponse {
+  userId: string;
+  fullName: string;
+  emailId: string;
+  createdAt: string;
+}
 
 // ============================================
 // AUTHENTICATION TYPES
@@ -107,6 +112,17 @@ export const createUserByAdminService = async (
  */
 export const logoutService = async (): Promise<ApiResponse<null>> => {
   const response = await apiInstance.post<ApiResponse<null>>(getApiUrl('logout'));
+  return response.data;
+};
+
+export const changePasswordService = async (data: {
+  oldPassword?: string;
+  password: string;
+}): Promise<ApiResponse<null>> => {
+  const response = await apiInstance.post<ApiResponse<null>>(
+    getApiUrl('changePassword'),
+    data
+  );
   return response.data;
 };
 

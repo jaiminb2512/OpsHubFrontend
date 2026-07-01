@@ -19,7 +19,7 @@ export default defineConfig({
     }),
   ],
   server: {
-    port: 5001,
+    port: 5004,
     strictPort: true,
   },
   optimizeDeps: {
