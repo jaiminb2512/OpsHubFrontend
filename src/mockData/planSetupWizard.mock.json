@@ -1,0 +1,65 @@
+{
+  "companiesList": [
+    { "id": "co-alpha", "name": "Alpha Tailors" },
+    { "id": "co-beta", "name": "Beta Stitchers" }
+  ],
+  "limitsCatalog": [
+    { "key": "max_users", "name": "Max Users", "enforcement": "max" },
+    { "key": "max_customers", "name": "Max Customers", "enforcement": "max" },
+    { "key": "customers_per_month", "name": "New customers / month", "enforcement": "renewable", "defaultPeriod": "monthly" },
+    { "key": "max_orders", "name": "Max Orders (total)", "enforcement": "max" },
+    { "key": "orders_per_month", "name": "Orders / month", "enforcement": "renewable", "defaultPeriod": "monthly" },
+    { "key": "max_stores", "name": "Max Stores", "enforcement": "max" },
+    { "key": "send_notification", "name": "Notifications", "enforcement": "renewable", "defaultPeriod": "monthly" }
+  ],
+  "modulesList": [
+    { "id": "mod-1", "name": "Orders", "description": "Manage customer orders end-to-end" },
+    { "id": "mod-2", "name": "Customers", "description": "Customer profiles and records" },
+    { "id": "mod-3", "name": "Inventory", "description": "Track stock and fabric inventory" },
+    { "id": "mod-4", "name": "Reports", "description": "Analytics and financial reports" },
+    { "id": "mod-5", "name": "Products", "description": "Product catalogue and variants" },
+    { "id": "mod-6", "name": "Suppliers", "description": "Supplier and procurement management" }
+  ],
+  "featuresList": [
+    { "id": "feature-order-1", "moduleId": "mod-1", "key": "orders_view", "name": "View Orders", "description": "Browse and search all orders" },
+    { "id": "feature-order-2", "moduleId": "mod-1", "key": "orders_create", "name": "Create Order", "description": "Create new customer orders" },
+    { "id": "feature-order-3", "moduleId": "mod-1", "key": "orders_update", "name": "Update Order", "description": "Edit existing order details" },
+    { "id": "feature-order-4", "moduleId": "mod-1", "key": "orders_delete", "name": "Delete Order", "description": "Remove or cancel orders" },
+    { "id": "feature-cust-1", "moduleId": "mod-2", "key": "customers_view", "name": "View Customers", "description": "Browse customer profiles" },
+    { "id": "feature-cust-2", "moduleId": "mod-2", "key": "customers_create", "name": "Create Customer", "description": "Add new customer records" },
+    { "id": "feature-cust-3", "moduleId": "mod-2", "key": "customers_update", "name": "Update Customer", "description": "Edit customer information" },
+    { "id": "feature-inv-1", "moduleId": "mod-3", "key": "inventory_view", "name": "View Inventory" },
+    { "id": "feature-inv-2", "moduleId": "mod-3", "key": "inventory_add", "name": "Add Stock" },
+    { "id": "feature-rep-1", "moduleId": "mod-4", "key": "reports_view", "name": "View Reports" },
+    { "id": "feature-rep-2", "moduleId": "mod-4", "key": "reports_export", "name": "Export Reports" },
+    { "id": "feature-prod-1", "moduleId": "mod-5", "key": "products_view", "name": "View Products" },
+    { "id": "feature-prod-2", "moduleId": "mod-5", "key": "products_create", "name": "Create Product" },
+    { "id": "feature-prod-3", "moduleId": "mod-5", "key": "products_update", "name": "Update Product" },
+    { "id": "feature-prod-4", "moduleId": "mod-5", "key": "products_delete", "name": "Delete Product" },
+    { "id": "feature-supp-1", "moduleId": "mod-6", "key": "suppliers_view", "name": "View Suppliers" },
+    { "id": "feature-supp-2", "moduleId": "mod-6", "key": "suppliers_create", "name": "Create Supplier" }
+  ],
+  "apiEndpointsList": [
+    { "id": "api-orders-list", "method": "GET", "path": "/api/v1/orders", "key": "ORDERS_LIST", "featureKey": "orders_view" },
+    {
+      "id": "api-orders-create",
+      "method": "POST",
+      "path": "/api/v1/orders",
+      "key": "ORDERS_CREATE",
+      "featureKey": "orders_create",
+      "suggestedLimitKey": "orders_per_month",
+      "defaultEnforcement": "renewable"
+    },
+    { "id": "api-customers-list", "method": "GET", "path": "/api/v1/customers", "key": "CUSTOMERS_LIST", "featureKey": "customers_view" },
+    {
+      "id": "api-customers-create",
+      "method": "POST",
+      "path": "/api/v1/customers",
+      "key": "CUSTOMERS_CREATE",
+      "featureKey": "customers_create",
+      "suggestedLimitKey": "max_customers",
+      "defaultEnforcement": "max"
+    },
+    { "id": "api-products-list", "method": "GET", "path": "/api/v1/products", "key": "PRODUCTS_LIST", "featureKey": "products_view" }
+  ]
+}
