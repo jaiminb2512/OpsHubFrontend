@@ -17,22 +17,17 @@ export interface LoginRequest {
   password: string;
 }
 
-import type { UserRoleContext } from '../../Utils/roleContextStorage';
-
 export interface LoginResponse {
   userId: string;
   fullName: string;
   emailId: string;
   role: string | null;
-  hierarchy?: number;
   token: string;
   imageUrl?: string;
   needToResetPassword?: boolean;
-  isCompanyOnlyUser?: boolean;
   isSuperAdmin?: boolean;
   isGlobal: boolean;
   createdAt: string;
-  roleContexts?: UserRoleContext[];
 }
 
 export interface RegisterRequest {

@@ -32,10 +32,9 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
 import { AUTH_PATHS } from '../Path';
-import { resolvePostLoginPath } from '../Utils/postLoginNavigation';
 import { loginService, isAuthenticated, getUserInfo } from '../Services/ApiServices';
-import { getRoleContextsList } from '../Utils/roleContextStorage';
 import { useToast } from '../Utils/ToastContext';
+import { DASHBOARD_PATHS } from '../Path';
 
 const APP_BRAND =
   (typeof import.meta.env.VITE_APP_BRAND_NAME === 'string' && import.meta.env.VITE_APP_BRAND_NAME.trim()) ||
@@ -106,11 +105,7 @@ const Login = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       checkAuth().then(() => {
-        const contexts = getRoleContextsList();
-        const needReset = getUserInfo()?.needToResetPassword === true;
-        navigate(resolvePostLoginPath(contexts, { needToResetPassword: needReset }), {
-          replace: true,
-        });
+        navigate(DASHBOARD_PATHS.HOME, { replace: true });
       });
     }
   }, [navigate, checkAuth]);
@@ -130,12 +125,7 @@ const Login = () => {
       if (response.success === 200 && response.data) {
         login(response.data.token, response.data);
         showSuccess('Login successful! Redirecting...', 'Success');
-        navigate(
-          resolvePostLoginPath(response.data.roleContexts ?? [], {
-            needToResetPassword: response.data.needToResetPassword,
-          }),
-          { replace: true }
-        );
+        navigate(DASHBOARD_PATHS.HOME, { replace: true });
       } else {
         showError(response.message || 'Login failed', 'Login Failed');
       }

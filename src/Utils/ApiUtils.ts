@@ -1,10 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import { getActiveRoleContext } from './roleContextStorage';
-
 // API Base URL
 const BASE_URL = import.meta.env.VITE_NODEJS_BASE_URL;
-
 
 // Create axios instance
 const apiInstance: AxiosInstance = axios.create({
@@ -20,13 +17,6 @@ apiInstance.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-        }
-        const activeContext = getActiveRoleContext();
-        if (activeContext) {
-            config.headers['x-session-context'] = activeContext.type;
-            if (activeContext.companyId) {
-                config.headers['x-company-id'] = activeContext.companyId;
-            }
         }
         return config;
     },

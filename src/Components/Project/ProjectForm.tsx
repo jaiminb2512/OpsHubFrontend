@@ -7,12 +7,10 @@ import {
     CircularProgress,
     Typography,
     Stack,
-    MenuItem,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../Utils/ToastContext';
 import { createProjectService, updateProjectService, getProjectByIdService } from '../../Services/ApiServices/projectServices';
-import { getCompaniesService, type CompanyListItem } from '../../Services/ApiServices/companyServices';
 import { PROJECT_PATHS } from '../../Path';
 import usePageTitle from '../../hooks/usePageTitle';
 
@@ -26,23 +24,16 @@ const ProjectForm = () => {
 
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(isEdit);
-    const [companies, setCompanies] = useState<CompanyListItem[]>([]);
 
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         domain: '',
-        companyId: '',
     });
 
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const companiesRes = await getCompaniesService({ isActive: true });
-                if (companiesRes.success) {
-                    setCompanies(companiesRes.data || []);
-                }
-
                 if (isEdit && id) {
                     const projectRes = await getProjectByIdService(id);
                     if (projectRes.success && projectRes.data) {
@@ -51,7 +42,6 @@ const ProjectForm = () => {
                             name: p.name || '',
                             description: p.description || '',
                             domain: p.domain || '',
-                            companyId: p.companyId || '',
                         });
                     }
                 }
@@ -84,7 +74,6 @@ const ProjectForm = () => {
             name: formData.name,
             description: formData.description || undefined,
             domain: formData.domain || undefined,
-            companyId: formData.companyId || undefined,
         };
 
         try {
@@ -136,25 +125,6 @@ const ProjectForm = () => {
                             required
                             placeholder="e.g. Acme Corp internal dashboard"
                         />
-                        <TextField
-                            select
-                            label="Company (Optional)"
-                            name="companyId"
-                            size="small"
-                            value={formData.companyId}
-                            onChange={handleChange}
-                            fullWidth
-                            helperText="Link this project to a specific tenant/company"
-                        >
-                            <MenuItem value="">
-                                <em>None (System Level)</em>
-                            </MenuItem>
-                            {companies.map((c) => (
-                                <MenuItem key={c.id} value={c.id}>
-                                    {c.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
                         <TextField
                             label="Domain URL (Optional)"
                             name="domain"
