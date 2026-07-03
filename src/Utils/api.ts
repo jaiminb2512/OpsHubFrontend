@@ -1350,6 +1350,30 @@ export const API_CONFIG: ApiConfig = {
         },
 
         // ============================================
+        // PROJECT STATS & STORAGE CONFIG
+        // ============================================
+        getProjectStats: {
+            path: '/projects/{id}/stats',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getDashboardStats: {
+            path: '/projects/dashboard-stats',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getStorageConfig: {
+            path: '/projects/storage-config',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        updateStorageConfig: {
+            path: '/projects/storage-config',
+            method: 'PUT',
+            baseUrl: NODEJS_BASE_URL,
+        },
+
+        // ============================================
         // ASSET ENDPOINTS
         // ============================================
         uploadAsset: {
