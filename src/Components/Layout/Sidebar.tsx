@@ -24,8 +24,9 @@ import {
   VpnKey as ApiKeyIcon,
   Dashboard as DashboardIcon,
   Storage as StorageIcon,
+  EventAvailable as AttendanceIcon,
 } from '@mui/icons-material';
-import { PROJECT_PATHS, DASHBOARD_PATHS } from '../../Path';
+import { PROJECT_PATHS, DASHBOARD_PATHS, ATTENDANCE_PATHS } from '../../Path';
 import { getUserInfo, type LoginResponse } from '../../Services/ApiServices';
 import { useAuth } from '../../Context/AuthContext';
 
@@ -44,6 +45,7 @@ const NAV_ITEMS = [
   { label: 'Projects', path: PROJECT_PATHS.LIST, icon: ProjectIcon },
   { label: 'API Keys', path: PROJECT_PATHS.API_KEYS, icon: ApiKeyIcon },
   { label: 'Storage Config', path: DASHBOARD_PATHS.STORAGE_CONFIG, icon: StorageIcon },
+  { label: 'Attendance', path: ATTENDANCE_PATHS.VIEW, icon: AttendanceIcon },
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }: SidebarProps) => {

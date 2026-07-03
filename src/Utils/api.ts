@@ -1348,6 +1348,48 @@ export const API_CONFIG: ApiConfig = {
             method: 'DELETE',
             baseUrl: NODEJS_BASE_URL,
         },
+        createAttendanceEmployee: {
+            path: '/attendance/employees',
+            method: 'POST',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        updateAttendanceEmployee: {
+            path: '/attendance/employees/{id}',
+            method: 'PUT',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        deleteAttendanceEmployee: {
+            path: '/attendance/employees/{id}',
+            method: 'DELETE',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        exportAttendance: {
+            path: '/attendance/export',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+
+        // Dashboard read-only attendance (JWT)
+        getProjectAttendanceEmployees: {
+            path: '/projects/{projectId}/attendance/employees',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getProjectAttendanceMonthly: {
+            path: '/projects/{projectId}/attendance/monthly',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getProjectAttendanceSummary: {
+            path: '/projects/{projectId}/attendance/summary',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getProjectAttendanceByDate: {
+            path: '/projects/{projectId}/attendance',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
 
         // ============================================
         // PROJECT STATS & STORAGE CONFIG
