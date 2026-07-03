@@ -1348,6 +1348,35 @@ export const API_CONFIG: ApiConfig = {
             method: 'DELETE',
             baseUrl: NODEJS_BASE_URL,
         },
+
+        // ============================================
+        // ASSET ENDPOINTS
+        // ============================================
+        uploadAsset: {
+            path: '/assets/upload',
+            method: 'POST',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        listAssets: {
+            path: '/assets',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getAsset: {
+            path: '/assets/{id}',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getAssetSignedUrl: {
+            path: '/assets/{id}/signed-url',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        deleteAsset: {
+            path: '/assets/{id}',
+            method: 'DELETE',
+            baseUrl: NODEJS_BASE_URL,
+        },
     },
 };
 

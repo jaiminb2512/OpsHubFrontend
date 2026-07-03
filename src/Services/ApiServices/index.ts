@@ -3,3 +3,4 @@ export * from './authServices';
 export * from './authHelpers';
 export * from './projectServices';
 export * from './projectApiKeyServices';
+export * from './assetServices';
