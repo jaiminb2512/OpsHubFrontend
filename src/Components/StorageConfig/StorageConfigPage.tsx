@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-    Box, Container, Paper, Typography, Stack, Switch, FormControlLabel,
-    Select, MenuItem, Button, Chip, Divider, Alert, Skeleton,
+    Box, Container, Paper, Typography, Stack, Switch,
+    Select, MenuItem, Button, Chip, Alert, Skeleton,
     Table, TableBody, TableCell, TableHead, TableRow, TableContainer,
     TextField, InputAdornment, Grid,
 } from '@mui/material';
@@ -253,7 +253,7 @@ const StorageConfigPage = () => {
                         How long signed URLs for private assets remain valid.
                     </Typography>
                     <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <TextField
                                 type="number"
                                 size="small"
@@ -267,7 +267,7 @@ const StorageConfigPage = () => {
                                 inputProps={{ min: 60, max: 86400 }}
                             />
                         </Grid>
-                        <Grid item>
+                        <Grid size="auto">
                             <Typography variant="body2" color="text.secondary">
                                 = {Math.round(config.signedUrlTtlSeconds / 60)} minutes
                             </Typography>

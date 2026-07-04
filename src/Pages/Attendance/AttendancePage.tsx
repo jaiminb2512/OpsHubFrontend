@@ -1,11 +1,10 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-    Box, Container, Paper, Typography, Stack, Select, MenuItem,
+    Box, Paper, Typography, Stack, Select, MenuItem,
     FormControl, InputLabel, Table, TableBody, TableCell, TableHead,
     TableRow, TableContainer, Chip, Skeleton, Alert, Tooltip,
 } from '@mui/material';
-import { EventAvailable as AttendanceIcon } from '@mui/icons-material';
 import apiInstance from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
 import { useToast } from '../../Utils/ToastContext';

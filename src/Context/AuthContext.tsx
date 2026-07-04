@@ -14,6 +14,8 @@ interface AuthContextType {
     isLoading: boolean;
     needToResetPassword: boolean;
     userInfo: LoginResponse | null;
+    hasRoleContextSelected: boolean;
+    roleContexts: unknown[];
     checkAuth: () => Promise<void>;
     login: (token: string, userInfo: LoginResponse) => void;
     logout: () => void;
@@ -92,6 +94,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isLoading: isAuthChecked ? false : isLoading,
         needToResetPassword,
         userInfo,
+        hasRoleContextSelected: true,
+        roleContexts: [],
         checkAuth,
         login,
         logout,

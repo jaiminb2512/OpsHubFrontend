@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { PROJECT_PATHS, DASHBOARD_PATHS } from './Path';
+import { DASHBOARD_PATHS } from './Path';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { ToastProvider } from './Utils/ToastContext';

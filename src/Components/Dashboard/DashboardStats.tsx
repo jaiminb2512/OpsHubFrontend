@@ -1,18 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
-    Box, Container, Grid, Paper, Typography, Chip, Stack,
+    Box, Grid, Paper, Typography, Chip, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    LinearProgress, Skeleton, Divider,
+    LinearProgress, Skeleton,
 } from '@mui/material';
 import {
     FolderOpen as ProjectIcon,
-    Image as ImageIcon,
-    VideoFile as VideoIcon,
-    AudioFile as AudioIcon,
-    Description as DocIcon,
-    InsertDriveFile as OtherIcon,
     VpnKey as KeyIcon,
-    Lock as EncryptIcon,
     Storage as StorageIcon,
 } from '@mui/icons-material';
 import apiInstance from '../../Utils/ApiUtils';
@@ -35,14 +29,6 @@ const fmt = (bytes: number) => {
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-};
-
-const TYPE_ICONS: Record<string, React.ReactNode> = {
-    image: <ImageIcon fontSize="small" sx={{ color: '#4CAF50' }} />,
-    video: <VideoIcon fontSize="small" sx={{ color: '#2196F3' }} />,
-    audio: <AudioIcon fontSize="small" sx={{ color: '#9C27B0' }} />,
-    document: <DocIcon fontSize="small" sx={{ color: '#FF9800' }} />,
-    other: <OtherIcon fontSize="small" sx={{ color: '#607D8B' }} />,
 };
 
 const StatCard = ({ label, value, icon, sub }: { label: string; value: string | number; icon: React.ReactNode; sub?: string }) => (
@@ -89,7 +75,7 @@ const DashboardStats = () => {
                     { label: 'Storage Used', value: loading ? '—' : fmt(totalBytes), icon: <StorageIcon sx={{ color: '#FF9800' }} /> },
                     { label: 'Active API Keys', value: loading ? '—' : totalKeys, icon: <KeyIcon sx={{ color: '#4CAF50' }} /> },
                 ].map((c) => (
-                    <Grid item xs={12} sm={6} md={3} key={c.label}>
+                    <Grid key={c.label} size={{ xs: 12, sm: 6, md: 3 }}>
                         {loading ? (
                             <Paper elevation={0} sx={{ p: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
                                 <Skeleton width="60%" height={16} />
