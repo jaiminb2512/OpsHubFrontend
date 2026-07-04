@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import {
     Box, Container, Paper, Typography, Stack, Select, MenuItem,
@@ -9,6 +10,7 @@ import apiInstance from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
 import { useToast } from '../../Utils/ToastContext';
 import usePageTitle from '../../hooks/usePageTitle';
+import { formatUtcToLocalTime } from '../../Utils/attendanceTime';
 
 interface Project {
     id: string;
@@ -17,9 +19,6 @@ interface Project {
 
 interface EmployeeRow {
     employeeId: string;
-    externalId: string | null;
-    name: string;
-    email: string | null;
     days: Record<number, { status: string; checkIn?: string; checkOut?: string }>;
 }
 
@@ -58,7 +57,6 @@ const AttendancePage = () => {
     const [projectId, setProjectId] = useState('');
     const [month, setMonth] = useState(currentMonth());
     const [data, setData] = useState<MonthlyData | null>(null);
-    const [employees, setEmployees] = useState<{ id: string; name: string; email: string | null; externalId: string | null }[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
 
@@ -77,14 +75,8 @@ const AttendancePage = () => {
         if (!projectId) return;
         setLoadingData(true);
 
-        Promise.all([
-            apiInstance.get(getApiUrl('getProjectAttendanceMonthly', { projectId }), { params: { month } }),
-            apiInstance.get(getApiUrl('getProjectAttendanceEmployees', { projectId })),
-        ])
-            .then(([monthlyRes, empRes]) => {
-                setData(monthlyRes.data?.data || null);
-                setEmployees(empRes.data?.data || []);
-            })
+        apiInstance.get(getApiUrl('getProjectAttendanceMonthly', { projectId }), { params: { month } })
+            .then(r => setData(r.data?.data || null))
             .catch(() => showError('Failed to load attendance data'))
             .finally(() => setLoadingData(false));
     }, [projectId, month]);
@@ -105,17 +97,7 @@ const AttendancePage = () => {
     }, [data]);
 
     return (
-        <Container maxWidth="xl" sx={{ py: 3 }}>
-            <Stack direction="row" alignItems="center" gap={1.5} mb={3}>
-                <AttendanceIcon color="primary" />
-                <Box>
-                    <Typography variant="h5" fontWeight={700}>Attendance</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Read-only view — employees and records are managed via API by each project
-                    </Typography>
-                </Box>
-            </Stack>
-
+        <>
             <Paper elevation={0} sx={{ p: 2.5, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} gap={2}>
                     <FormControl size="small" sx={{ minWidth: 220 }}>
@@ -142,28 +124,6 @@ const AttendancePage = () => {
                 </Stack>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 2.5, mb: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
-                <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    Registered Employees ({employees.length})
-                </Typography>
-                {loadingData ? (
-                    <Skeleton height={80} />
-                ) : employees.length === 0 ? (
-                    <Alert severity="info">No employees registered for this project yet. Use the API to register employees.</Alert>
-                ) : (
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                        {employees.map(e => (
-                            <Chip
-                                key={e.id}
-                                label={`${e.name}${e.externalId ? ` (${e.externalId})` : ''}`}
-                                size="small"
-                                variant="outlined"
-                            />
-                        ))}
-                    </Stack>
-                )}
-            </Paper>
-
             <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
                 <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
                     <Typography variant="subtitle1" fontWeight={600}>Monthly Matrix — {month}</Typography>
@@ -179,7 +139,7 @@ const AttendancePage = () => {
                         <Table stickyHeader size="small">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ fontWeight: 700, minWidth: 160 }}>Employee</TableCell>
+                                    <TableCell sx={{ fontWeight: 700, minWidth: 160 }}>Employee ID</TableCell>
                                     {dayHeaders.map(d => (
                                         <TableCell key={d} align="center" sx={{ fontWeight: 600, px: 0.5, minWidth: 32 }}>{d}</TableCell>
                                     ))}
@@ -189,17 +149,16 @@ const AttendancePage = () => {
                                 {data.users.map(user => (
                                     <TableRow key={user.employeeId} hover>
                                         <TableCell>
-                                            <Typography variant="body2" fontWeight={500}>{user.name}</Typography>
-                                            {user.email && (
-                                                <Typography variant="caption" color="text.secondary">{user.email}</Typography>
-                                            )}
+                                            <Typography variant="body2" fontWeight={500}>{user.employeeId}</Typography>
                                         </TableCell>
                                         {dayHeaders.map(d => {
                                             const record = user.days[d];
                                             if (!record) return <TableCell key={d} align="center" />;
                                             return (
                                                 <TableCell key={d} align="center" sx={{ px: 0.5 }}>
-                                                    <Tooltip title={record.status}>
+                                                    <Tooltip
+                                                        title={`${record.status}${record.checkIn ? ` | In: ${formatUtcToLocalTime(record.checkIn)}` : ''}${record.checkOut ? ` | Out: ${formatUtcToLocalTime(record.checkOut)}` : ''}`}
+                                                    >
                                                         <Chip
                                                             label={STATUS_LABELS[record.status] || record.status}
                                                             size="small"
@@ -217,7 +176,7 @@ const AttendancePage = () => {
                     </TableContainer>
                 )}
             </Paper>
-        </Container>
+        </>
     );
 };
 

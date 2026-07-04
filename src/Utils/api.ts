@@ -1318,11 +1318,6 @@ export const API_CONFIG: ApiConfig = {
             method: 'GET',
             baseUrl: NODEJS_BASE_URL,
         },
-        getAttendanceEmployees: {
-            path: '/attendance/employees',
-            method: 'GET',
-            baseUrl: NODEJS_BASE_URL,
-        },
         markAttendance: {
             path: '/attendance/mark',
             method: 'POST',
@@ -1348,21 +1343,6 @@ export const API_CONFIG: ApiConfig = {
             method: 'DELETE',
             baseUrl: NODEJS_BASE_URL,
         },
-        createAttendanceEmployee: {
-            path: '/attendance/employees',
-            method: 'POST',
-            baseUrl: NODEJS_BASE_URL,
-        },
-        updateAttendanceEmployee: {
-            path: '/attendance/employees/{id}',
-            method: 'PUT',
-            baseUrl: NODEJS_BASE_URL,
-        },
-        deleteAttendanceEmployee: {
-            path: '/attendance/employees/{id}',
-            method: 'DELETE',
-            baseUrl: NODEJS_BASE_URL,
-        },
         exportAttendance: {
             path: '/attendance/export',
             method: 'GET',
@@ -1370,11 +1350,6 @@ export const API_CONFIG: ApiConfig = {
         },
 
         // Dashboard read-only attendance (JWT)
-        getProjectAttendanceEmployees: {
-            path: '/projects/{projectId}/attendance/employees',
-            method: 'GET',
-            baseUrl: NODEJS_BASE_URL,
-        },
         getProjectAttendanceMonthly: {
             path: '/projects/{projectId}/attendance/monthly',
             method: 'GET',
