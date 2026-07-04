@@ -35,14 +35,13 @@ export default defineConfig({
           // Do not bundle all @mui/icons-material into one chunk (breaks tree-shaking)
           if (id.includes('@mui/x-')) return 'mui-x';
           if (id.includes('@mui/')) return 'mui-core';
-          if (id.includes('react-dom') || id.includes('react-router')) return 'react-vendor';
-          if (id.includes('/react/') || id.endsWith('react/index.js')) return 'react-vendor';
           if (id.includes('@reduxjs') || id.includes('redux')) return 'redux';
           if (id.includes('recharts') || id.includes('d3-')) return 'charts';
           if (id.includes('react-slick') || id.includes('slick-carousel')) return 'carousel';
           if (id.includes('axios')) return 'http';
-          if (id.includes('date-fns') || id.includes('dayjs') || id.includes('moment')) return 'dates';
 
+          // react-dom, react-router, react itself and all other node_modules
+          // go into a single vendor chunk — avoids circular chunk dependency
           return 'vendor';
         },
       },
