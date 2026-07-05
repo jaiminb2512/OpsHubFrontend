@@ -39,12 +39,14 @@ import {
     BusinessCenter as ProjectIcon,
     VpnKey as VpnKeyIcon,
     DeleteForever as HardDeleteIcon,
+    Analytics as AnalyticsIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getProjectsService, deleteProjectService, hardDeleteProjectService, type ProjectListItem } from '../../Services/ApiServices/projectServices';
 import { useToast } from '../../Utils/ToastContext';
 import { useConfirm } from '../../Utils/ConfirmDialogContext';
 import { PROJECT_PATHS } from '../../Path';
+import { projectAnalyticsPath } from '../../Path/dashboardPaths';
 import usePageTitle from '../../hooks/usePageTitle';
 
 const ProjectList = () => {
@@ -331,6 +333,15 @@ const ProjectList = () => {
                                         </TableCell>
                                         <TableCell align="right">
                                             <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                                                <Tooltip title="View Analytics" arrow>
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() => navigate(projectAnalyticsPath(project.id))}
+                                                    >
+                                                        <AnalyticsIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
                                                 <Tooltip title="Edit" arrow>
                                                     <IconButton
                                                         size="small"
