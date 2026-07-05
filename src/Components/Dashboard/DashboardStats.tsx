@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Box, Grid, Paper, Typography, Chip, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    LinearProgress, Skeleton, Divider,
+    LinearProgress, Skeleton, Divider, Tooltip, IconButton,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -13,6 +13,7 @@ import {
     CloudUpload as UploadIcon,
     Lock as LockIcon,
     BarChart as ChartIcon,
+    QueryStats as AnalyticsIcon,
 } from '@mui/icons-material';
 import apiInstance from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
@@ -94,12 +95,12 @@ const SectionTitle = ({ title, sub }: { title: string; sub?: string }) => (
 // Bar chart — upload trend
 const TrendChart = ({ data, loading }: { data: TrendPoint[]; loading: boolean }) => {
     const theme = useTheme();
-    const W = 100, H = 80, PAD = 4;
+    const W = 100, H = 40, PAD = 2;
     const max = Math.max(...data.map(d => d.count), 1);
     const barW = (W - PAD * 2) / data.length;
     const color = theme.palette.primary.main;
 
-    if (loading) return <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2 }} />;
+    if (loading) return <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />;
 
     // Show every ~5th label to avoid crowding
     const labelStep = Math.ceil(data.length / 6);
@@ -108,9 +109,9 @@ const TrendChart = ({ data, loading }: { data: TrendPoint[]; loading: boolean })
         <Box>
             <svg viewBox={`0 0 100 ${H}`} style={{ width: '100%', display: 'block' }}>
                 {data.map((d, i) => {
-                    const bh = Math.max(1, (d.count / max) * (H - PAD * 2 - 12));
+                    const bh = Math.max(0.5, (d.count / max) * (H - PAD * 2 - 8));
                     const x = PAD + i * barW + barW * 0.1;
-                    const y = H - PAD - 12 - bh;
+                    const y = H - PAD - 8 - bh;
                     return (
                         <g key={d.date}>
                             <rect x={x} y={y} width={barW * 0.8} height={bh} fill={color} opacity={0.85} rx={0.5} />
@@ -127,14 +128,14 @@ const TrendChart = ({ data, loading }: { data: TrendPoint[]; loading: boolean })
                         x={PAD + i * barW + barW / 2}
                         y={H - PAD + 1}
                         textAnchor="middle"
-                        fontSize={3.5}
+                        fontSize={3}
                         fill={theme.palette.text.secondary}
                     >
                         {shortDate(d.date)}
                     </text>
                 ))}
             </svg>
-            <Typography variant="caption" color="text.disabled" sx={{ display: 'block', textAlign: 'center', mt: 0.5 }}>
+            <Typography variant="caption" color="text.disabled" sx={{ display: 'block', textAlign: 'center', mt: 0.25 }}>
                 Last 30 days — peak: {max} upload{max !== 1 ? 's' : ''} / day
             </Typography>
         </Box>
@@ -149,7 +150,7 @@ const DonutChart = ({
     loading: boolean;
     centerLabel?: string;
 }) => {
-    if (loading) return <Skeleton variant="circular" width={120} height={120} sx={{ mx: 'auto' }} />;
+    if (loading) return <Skeleton variant="circular" width={60} height={60} sx={{ mx: 'auto' }} />;
 
     const total = segments.reduce((s, seg) => s + seg.value, 0);
     if (total === 0) return (
@@ -187,19 +188,19 @@ const DonutChart = ({
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
             <Box sx={{ flexShrink: 0, position: 'relative' }}>
-                <svg viewBox="0 0 100 100" style={{ width: 120, height: 120, display: 'block' }}>
+                <svg viewBox="0 0 100 100" style={{ width: 60, height: 60, display: 'block' }}>
                     {paths.map((p, i) => (
                         <path key={i} d={p.d} fill={p.color} opacity={0.9}>
                             <title>{`${p.label}: ${p.pct}%`}</title>
                         </path>
                     ))}
                     {centerLabel && (
-                        <text x={50} y={54} textAnchor="middle" fontSize={8} fontWeight="bold" fill="currentColor">
+                        <text x={50} y={52} textAnchor="middle" fontSize={18} fontWeight="bold" fill="currentColor">
                             {total}
                         </text>
                     )}
                     {centerLabel && (
-                        <text x={50} y={62} textAnchor="middle" fontSize={5} fill="grey">
+                        <text x={50} y={64} textAnchor="middle" fontSize={10} fill="grey">
                             {centerLabel}
                         </text>
                     )}
@@ -209,10 +210,10 @@ const DonutChart = ({
                 {paths.map((p) => (
                     <Stack key={p.label} direction="row" alignItems="center" spacing={1} mb={0.5}>
                         <Box sx={{ width: 10, height: 10, borderRadius: '2px', bgcolor: p.color, flexShrink: 0 }} />
-                        <Typography variant="caption" sx={{ flex: 1 }} noWrap>
+                        <Typography variant="body2" sx={{ flex: 1 }} noWrap>
                             {p.label}
                         </Typography>
-                        <Typography variant="caption" fontWeight={600}>{p.pct}%</Typography>
+                        <Typography variant="body2" fontWeight={600}>{p.pct}%</Typography>
                     </Stack>
                 ))}
             </Box>
@@ -395,7 +396,7 @@ const DashboardStats = () => {
                                 </TableRow>
                             ) : (
                                 projects.map((p) => (
-                                    <TableRow key={p.id} hover onClick={() => navigate(projectAnalyticsPath(p.id))} sx={{ '&:last-child td': { borderBottom: 0 }, cursor: 'pointer' }}>
+                                    <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
                                         <TableCell>
                                             <Typography variant="body2" fontWeight={600}>{p.name}</Typography>
                                             <Typography variant="caption" color="text.disabled" sx={{ fontFamily: 'monospace' }}>
@@ -431,6 +432,13 @@ const DashboardStats = () => {
                                                 color={p.isActive ? 'success' : 'default'}
                                                 variant={p.isActive ? 'filled' : 'outlined'}
                                             />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <Tooltip title="View Analytics">
+                                                <IconButton size="small" onClick={() => navigate(projectAnalyticsPath(p.id))}>
+                                                    <AnalyticsIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
                                         </TableCell>
                                     </TableRow>
                                 ))

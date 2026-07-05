@@ -8,7 +8,7 @@ import { ConfirmDialogProvider } from './Utils/ConfirmDialogContext';
 import ToastDisplay from './Components/Common/ToastProvider';
 import { getAllRoutes } from './Config/routes';
 import { RouteLoadingFallback } from './Config/lazyPage';
-import { useAuth } from './Context/AuthContext';
+import { useAuth, AuthProvider } from './Context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
 import { AUTH_PATHS } from './Path';
 
@@ -31,6 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
+    <AuthProvider>
     <Provider store={store}>
       <ToastProvider>
         <ConfirmDialogProvider>
@@ -61,6 +62,7 @@ function App() {
         </ConfirmDialogProvider>
       </ToastProvider>
     </Provider>
+    </AuthProvider>
   );
 }
 
