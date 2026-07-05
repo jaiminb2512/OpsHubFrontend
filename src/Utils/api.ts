@@ -1384,6 +1384,16 @@ export const API_CONFIG: ApiConfig = {
             method: 'GET',
             baseUrl: NODEJS_BASE_URL,
         },
+        getProjectAnalytics: {
+            path: '/projects/{id}/analytics',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
+        getApiKeyAnalytics: {
+            path: '/projects/{id}/api-key-analytics',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
         getStorageConfig: {
             path: '/projects/storage-config',
             method: 'GET',
