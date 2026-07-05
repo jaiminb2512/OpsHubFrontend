@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box, Grid, Paper, Typography, Chip, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -16,6 +17,7 @@ import {
 import apiInstance from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
 import usePageTitle from '../../hooks/usePageTitle';
+import { projectAnalyticsPath } from '../../Path/dashboardPaths';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -246,6 +248,7 @@ const EncryptedBar = ({ encrypted, plain, loading }: { encrypted: number; plain:
 
 const DashboardStats = () => {
     usePageTitle('Dashboard');
+    const navigate = useNavigate();
     const [projects, setProjects] = useState<ProjectStat[]>([]);
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [loading, setLoading] = useState(true);
@@ -392,7 +395,7 @@ const DashboardStats = () => {
                                 </TableRow>
                             ) : (
                                 projects.map((p) => (
-                                    <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                                    <TableRow key={p.id} hover onClick={() => navigate(projectAnalyticsPath(p.id))} sx={{ '&:last-child td': { borderBottom: 0 }, cursor: 'pointer' }}>
                                         <TableCell>
                                             <Typography variant="body2" fontWeight={600}>{p.name}</Typography>
                                             <Typography variant="caption" color="text.disabled" sx={{ fontFamily: 'monospace' }}>

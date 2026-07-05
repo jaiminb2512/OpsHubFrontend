@@ -6,3 +6,5 @@ export const ProjectApiKeyPage = lazyPage(() => import('../Pages/Project/Project
 export const DashboardStatsPage = lazyPage(() => import('../Components/Dashboard/DashboardStats'));
 export const StorageConfigPage = lazyPage(() => import('../Components/StorageConfig/StorageConfigPage'));
 export const AttendancePage = lazyPage(() => import('../Pages/Attendance/AttendancePage'));
+export const ProjectAnalyticsPage = lazyPage(() => import('../Pages/Analytics/ProjectAnalyticsPage'));
+export const ApiKeyAnalyticsPage = lazyPage(() => import('../Pages/Analytics/ApiKeyAnalyticsPage'));
