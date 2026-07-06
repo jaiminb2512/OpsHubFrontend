@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Box, Button, Chip, CircularProgress, Divider, FormControl,
+    Button, Chip, CircularProgress, Divider, FormControl,
     FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Select,
     Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
@@ -16,11 +16,6 @@ import { useToast } from '../../Utils/ToastContext';
 import usePageTitle from '../../hooks/usePageTitle';
 import { DASHBOARD_PATHS } from '../../Path';
 import { createGlobalProviderService, type ProviderCategory } from '../../Services/ApiServices/providerServices';
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-const STORAGE_PROVIDERS = ['cloudinary', 's3', 'local', 'b2', 'gcs'];
-const EMAIL_PROVIDERS = ['brevo', 'smtp', 'resend', 'sendgrid'];
 
 type AccountDraft = {
     id: string;                           // client-only key
@@ -93,7 +88,7 @@ export default function CreateGlobalProviderPage() {
         if (!resolvedName) e.name = 'Provider name is required';
         if (!label.trim()) e.label = 'Label is required';
 
-        accounts.forEach((acc, i) => {
+        accounts.forEach((acc) => {
             if (!acc.label.trim())
                 e[`acc_label_${acc.id}`] = 'Account label is required';
 

@@ -71,7 +71,6 @@ const accountRowSx = {
 
 const AccountRow = ({
     account,
-    providerId,
     onSetDefault,
     onDelete,
     onTest,
@@ -142,24 +141,24 @@ export default function GlobalProvidersPage() {
     const { showSuccess, showError } = useToast();
     const confirm = useConfirm();
 
-    const [providers, setProviders]   = useState<ProjectProvider[]>([]);
-    const [loading, setLoading]       = useState(true);
-    const [expanded, setExpanded]     = useState<Record<string, boolean>>({});
-    const [testingId, setTestingId]   = useState<string | null>(null);
+    const [providers, setProviders] = useState<ProjectProvider[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+    const [testingId, setTestingId] = useState<string | null>(null);
 
     // Edit provider dialog (for existing providers only — create uses dedicated page)
-    const [providerDialog, setProviderDialog]   = useState(false);
+    const [providerDialog, setProviderDialog] = useState(false);
     const [editingProvider, setEditingProvider] = useState<ProjectProvider | null>(null);
-    const [providerForm, setProviderForm]       = useState<UpdateProviderPayload>({
+    const [providerForm, setProviderForm] = useState<UpdateProviderPayload>({
         label: '', description: '', isDefault: false,
     });
     const [providerSaving, setProviderSaving] = useState(false);
 
     // Account dialog
-    const [accountDialog, setAccountDialog]     = useState(false);
+    const [accountDialog, setAccountDialog] = useState(false);
     const [accountProvider, setAccountProvider] = useState<ProjectProvider | null>(null);
-    const [editingAccount, setEditingAccount]   = useState<ProviderAccount | null>(null);
-    const [accountForm, setAccountForm]         = useState<{ label: string; credentialsJson: string; isDefault: boolean }>({
+    const [editingAccount, setEditingAccount] = useState<ProviderAccount | null>(null);
+    const [accountForm, setAccountForm] = useState<{ label: string; credentialsJson: string; isDefault: boolean }>({
         label: '', credentialsJson: '', isDefault: false,
     });
     const [accountSaving, setAccountSaving] = useState(false);
@@ -185,7 +184,7 @@ export default function GlobalProvidersPage() {
     useEffect(() => { load(); }, [load]);
 
     const storageProviders = providers.filter(p => p.category === 'storage' && !p.isDeleted);
-    const emailProviders   = providers.filter(p => p.category === 'email'   && !p.isDeleted);
+    const emailProviders = providers.filter(p => p.category === 'email' && !p.isDeleted);
 
     // ── Provider actions ─────────────────────────────────────────────────────
 

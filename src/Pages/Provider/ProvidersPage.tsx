@@ -141,8 +141,6 @@ const CategoryIcon = ({ category }: { category: ProviderCategory }) =>
 
 const AccountRow = ({
     account,
-    projectId,
-    providerId,
     onSetDefault,
     onDelete,
     onTest,
@@ -248,13 +246,6 @@ export default function ProvidersPage() {
     const emailProviders   = providers.filter(p => p.category === 'email'   && !p.isDeleted);
 
     // ── Provider actions ─────────────────────────────────────────────────────
-
-    const openAddProvider = () => {
-        setEditingProvider(null);
-        setProviderForm({ category: 'storage', name: '', label: '', description: '', isDefault: false });
-        setProviderDialog(true);
-    };
-
     const openEditProvider = (p: ProjectProvider) => {
         setEditingProvider(p);
         setProviderForm({ category: p.category, name: p.name, label: p.label,
@@ -369,13 +360,11 @@ export default function ProvidersPage() {
 
     const handleTestAccount = async (providerId: string, accountId: string) => {
         if (!projectId) return;
-        setTestingId(accountId);
         try {
             const res = await testProviderAccountService(projectId, providerId, accountId);
             if (res.success === 200) showSuccess(res.data?.message || 'Connection successful');
             else showError(res.message || 'Test failed');
-        } catch (e: any) { showError(e?.response?.data?.message || 'Connection test failed'); }
-        finally { setTestingId(null); }
+        } catch (e: any) { showError(e?.response?.data?.message || 'Connection test failed'); }}
     };
 
     // ── Credential form fields ────────────────────────────────────────────────
