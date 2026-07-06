@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Alert, Box, Button, Chip, CircularProgress, Collapse, Dialog,
+    Box, Button, Chip, CircularProgress, Collapse, Dialog,
     DialogActions, DialogContent, DialogTitle, Divider,
     FormControlLabel, IconButton, Paper,
     Stack, Switch, TextField, Tooltip, Typography,
@@ -15,7 +15,6 @@ import {
     Email as EmailIcon,
     ExpandLess,
     ExpandMore,
-    Language as GlobalIcon,
     RadioButtonUnchecked as NotDefaultIcon,
     Star as StarIcon,
     WifiTetheringError as TestIcon,
@@ -38,66 +37,7 @@ import {
     type ProjectProvider,
     type ProviderAccount,
     type UpdateProviderPayload,
-    type CreateAccountPayload,
 } from '../../Services/ApiServices/providerServices';
-
-// ── Credential field definitions ─────────────────────────────────────────────
-
-const CREDENTIAL_FIELDS: Record<string, { key: string; label: string; secret?: boolean; multiline?: boolean }[]> = {
-    cloudinary: [
-        { key: 'cloudName', label: 'Cloud Name' },
-        { key: 'apiKey', label: 'API Key', secret: true },
-        { key: 'apiSecret', label: 'API Secret', secret: true },
-        { key: 'folder', label: 'Folder (optional)' },
-    ],
-    s3: [
-        { key: 'accessKeyId', label: 'Access Key ID', secret: true },
-        { key: 'secretAccessKey', label: 'Secret Access Key', secret: true },
-        { key: 'region', label: 'Region (e.g. us-east-1)' },
-        { key: 'bucket', label: 'Bucket Name' },
-        { key: 'endpoint', label: 'Endpoint (optional — for S3-compatible)' },
-    ],
-    local: [
-        { key: 'uploadDir', label: 'Upload Directory (absolute server path)' },
-        { key: 'baseUrl', label: 'Public Base URL' },
-    ],
-    b2: [
-        { key: 'accountId', label: 'Account ID', secret: true },
-        { key: 'applicationKey', label: 'Application Key', secret: true },
-        { key: 'bucketId', label: 'Bucket ID' },
-        { key: 'bucketName', label: 'Bucket Name' },
-        { key: 'endpoint', label: 'Endpoint' },
-    ],
-    gcs: [
-        { key: 'projectId', label: 'GCS Project ID' },
-        { key: 'bucket', label: 'Bucket Name' },
-        { key: 'credentials', label: 'Service Account JSON', secret: true, multiline: true },
-    ],
-    brevo: [
-        { key: 'apiKey', label: 'API Key', secret: true },
-        { key: 'fromEmail', label: 'From Email' },
-        { key: 'fromName', label: 'From Name' },
-    ],
-    smtp: [
-        { key: 'host', label: 'Host' },
-        { key: 'port', label: 'Port (e.g. 587)' },
-        { key: 'user', label: 'Username' },
-        { key: 'pass', label: 'Password', secret: true },
-        { key: 'fromEmail', label: 'From Email' },
-        { key: 'fromName', label: 'From Name' },
-        { key: 'secure', label: 'Secure (true/false)' },
-    ],
-    resend: [
-        { key: 'apiKey', label: 'API Key', secret: true },
-        { key: 'fromEmail', label: 'From Email' },
-        { key: 'fromName', label: 'From Name' },
-    ],
-    sendgrid: [
-        { key: 'apiKey', label: 'API Key', secret: true },
-        { key: 'fromEmail', label: 'From Email' },
-        { key: 'fromName', label: 'From Name' },
-    ],
-};
 
 // ── Styles ───────────────────────────────────────────────────────────────────
 
@@ -198,8 +138,6 @@ const AccountRow = ({
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function GlobalProvidersPage() {
-    usePageTitle('Global Providers');
-
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
     const confirm = useConfirm();
@@ -221,10 +159,19 @@ export default function GlobalProvidersPage() {
     const [accountDialog, setAccountDialog]     = useState(false);
     const [accountProvider, setAccountProvider] = useState<ProjectProvider | null>(null);
     const [editingAccount, setEditingAccount]   = useState<ProviderAccount | null>(null);
-    const [accountForm, setAccountForm]         = useState<CreateAccountPayload & { isDefault?: boolean }>({
-        label: '', credentials: {}, isDefault: false,
+    const [accountForm, setAccountForm]         = useState<{ label: string; credentialsJson: string; isDefault: boolean }>({
+        label: '', credentialsJson: '', isDefault: false,
     });
     const [accountSaving, setAccountSaving] = useState(false);
+
+    usePageTitle(
+        'Global Providers',
+        <Button variant="contained" size="small" startIcon={<AddIcon />}
+            onClick={() => navigate(DASHBOARD_PATHS.GLOBAL_PROVIDERS_CREATE)}
+            sx={{ background: colors.primary.gradient }}>
+            Add Provider
+        </Button>
+    );
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -283,32 +230,50 @@ export default function GlobalProvidersPage() {
 
     // ── Account actions ──────────────────────────────────────────────────────
 
+    const tryParseCredentials = (raw: string): Record<string, string> | null => {
+        if (!raw.trim()) return null;
+        try {
+            const parsed = JSON.parse(raw);
+            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) return parsed;
+        } catch { /* ignore */ }
+        return null;
+    };
+
     const openAddAccount = (p: ProjectProvider) => {
         setAccountProvider(p);
         setEditingAccount(null);
-        setAccountForm({ label: '', credentials: {}, isDefault: false });
+        setAccountForm({ label: '', credentialsJson: '{}', isDefault: false });
         setAccountDialog(true);
     };
 
     const openEditAccount = (p: ProjectProvider, account: ProviderAccount) => {
         setAccountProvider(p);
         setEditingAccount(account);
-        setAccountForm({ label: account.label, credentials: {}, isDefault: account.isDefault });
+        setAccountForm({ label: account.label, credentialsJson: '', isDefault: account.isDefault });
         setAccountDialog(true);
     };
 
     const saveAccount = async () => {
-        if (!accountProvider) return;
+        if (!accountProvider || !accountForm.label) return;
+        const parsedCreds = tryParseCredentials(accountForm.credentialsJson);
+        // For create: credentials required. For edit: optional (empty = keep existing).
+        if (!editingAccount && !parsedCreds) return;
+        if (accountForm.credentialsJson.trim() && !parsedCreds) return; // invalid JSON
+
         setAccountSaving(true);
         try {
             if (editingAccount) {
                 const payload: any = { label: accountForm.label };
-                if (Object.keys(accountForm.credentials).length > 0) payload.credentials = accountForm.credentials;
+                if (parsedCreds) payload.credentials = parsedCreds;
                 const res = await updateGlobalProviderAccountService(accountProvider.id, editingAccount.id, payload);
                 if (res.success === 200) { showSuccess('Account updated'); load(); setAccountDialog(false); }
                 else showError(res.message || 'Failed to update');
             } else {
-                const res = await createGlobalProviderAccountService(accountProvider.id, accountForm as CreateAccountPayload);
+                const res = await createGlobalProviderAccountService(accountProvider.id, {
+                    label: accountForm.label,
+                    credentials: parsedCreds!,
+                    isDefault: accountForm.isDefault,
+                });
                 if (res.success === 201) { showSuccess('Account added'); load(); setAccountDialog(false); }
                 else showError(res.message || 'Failed to add');
             }
@@ -348,31 +313,19 @@ export default function GlobalProvidersPage() {
         finally { setTestingId(null); }
     };
 
-    const credentialFields = CREDENTIAL_FIELDS[accountProvider?.name?.toLowerCase() ?? ''] ?? [];
-
     // ── Render section ───────────────────────────────────────────────────────
 
     const renderSection = (sectionProviders: ProjectProvider[], category: 'storage' | 'email') => (
         <Box mb={4}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                    {category === 'storage'
-                        ? <StorageIcon sx={{ fontSize: 18, color: colors.primary.main }} />
-                        : <EmailIcon sx={{ fontSize: 18, color: colors.primary.main }} />}
-                    <Typography variant="h6" fontWeight={700} fontSize={16}>
-                        {category === 'storage' ? 'Global Storage Providers' : 'Global Email Providers'}
-                    </Typography>
-                    <Chip label={sectionProviders.length} size="small"
-                        sx={{ bgcolor: colors.primary.rgba.light, color: colors.primary.main, fontWeight: 700 }} />
-                </Stack>
-                <Button size="small" startIcon={<AddIcon />} variant="outlined"
-                    onClick={() => navigate(DASHBOARD_PATHS.GLOBAL_PROVIDERS_CREATE)}
-                    sx={{
-                        borderColor: colors.primary.main, color: colors.primary.main,
-                        '&:hover': { bgcolor: colors.primary.rgba.light }
-                    }}>
-                    Add {category === 'storage' ? 'Storage' : 'Email'} Provider
-                </Button>
+            <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                {category === 'storage'
+                    ? <StorageIcon sx={{ fontSize: 18, color: colors.primary.main }} />
+                    : <EmailIcon sx={{ fontSize: 18, color: colors.primary.main }} />}
+                <Typography variant="h6" fontWeight={700} fontSize={16}>
+                    {category === 'storage' ? 'Global Storage Providers' : 'Global Email Providers'}
+                </Typography>
+                <Chip label={sectionProviders.length} size="small"
+                    sx={{ bgcolor: colors.primary.rgba.light, color: colors.primary.main, fontWeight: 700 }} />
             </Stack>
 
             {sectionProviders.length === 0 ? (
@@ -479,31 +432,6 @@ export default function GlobalProvidersPage() {
 
     return (
         <>
-            {/* Header */}
-            <Stack direction="row" alignItems="center" spacing={1.5} mb={2}>
-                <Box sx={{
-                    width: 40, height: 40, borderRadius: 2, display: 'grid',
-                    placeItems: 'center', background: colors.primary.gradient
-                }}>
-                    <GlobalIcon sx={{ color: '#fff', fontSize: 20 }} />
-                </Box>
-                <Box>
-                    <Typography variant="h5" fontWeight={800} letterSpacing="-0.03em">
-                        Global Providers
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Fallback providers used by any project that hasn't configured its own
-                    </Typography>
-                </Box>
-            </Stack>
-
-            {/* Info banner */}
-            <Alert severity="info" sx={{ mb: 3, fontSize: 13 }}>
-                <strong>Resolution order:</strong> Project-scoped provider (default account) →
-                Global provider (default account). Projects with their own provider configured
-                always take priority.
-            </Alert>
-
             {loading ? (
                 <Box display="flex" justifyContent="center" py={6}>
                     <CircularProgress size={32} />
@@ -555,34 +483,25 @@ export default function GlobalProvidersPage() {
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2.5} mt={1}>
-                        <TextField size="small" fullWidth label="Label"
+                        <TextField size="small" fullWidth label="Label *"
                             placeholder="e.g. Primary, Backup"
                             value={accountForm.label}
                             onChange={e => setAccountForm(f => ({ ...f, label: e.target.value }))} />
 
-                        <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                            Credentials{editingAccount ? ' (leave blank to keep existing)' : ''}
-                        </Typography>
-
-                        {credentialFields.length > 0 ? (
-                            credentialFields.map(field => (
-                                <TextField key={field.key} size="small" fullWidth
-                                    label={field.label}
-                                    type={field.secret ? 'password' : 'text'}
-                                    multiline={field.multiline}
-                                    rows={field.multiline ? 4 : 1}
-                                    placeholder={editingAccount ? '••••••••' : ''}
-                                    value={accountForm.credentials[field.key] ?? ''}
-                                    onChange={e => setAccountForm(f => ({
-                                        ...f,
-                                        credentials: { ...f.credentials, [field.key]: e.target.value },
-                                    }))} />
-                            ))
-                        ) : (
-                            <Alert severity="info" sx={{ fontSize: 13 }}>
-                                No credential template for "{accountProvider?.name}".
-                            </Alert>
-                        )}
+                        <TextField
+                            fullWidth multiline rows={7}
+                            label={editingAccount ? 'Credentials (JSON) — leave empty to keep existing' : 'Credentials (JSON) *'}
+                            placeholder={'{\n  "apiKey": "...",\n  "fromEmail": "you@example.com"\n}'}
+                            value={accountForm.credentialsJson ?? ''}
+                            helperText={
+                                accountForm.credentialsJson && !tryParseCredentials(accountForm.credentialsJson ?? '')
+                                    ? 'Must be a valid JSON object'
+                                    : editingAccount ? 'Only filled keys will overwrite existing credentials' : ''
+                            }
+                            error={!!(accountForm.credentialsJson && !tryParseCredentials(accountForm.credentialsJson ?? ''))}
+                            onChange={e => setAccountForm(f => ({ ...f, credentialsJson: e.target.value }))}
+                            inputProps={{ style: { fontFamily: 'monospace', fontSize: 13 } }}
+                        />
 
                         {!editingAccount && (
                             <FormControlLabel
@@ -598,8 +517,11 @@ export default function GlobalProvidersPage() {
                 <DialogActions sx={{ px: 3, pb: 2.5 }}>
                     <Button onClick={() => setAccountDialog(false)}>Cancel</Button>
                     <Button variant="contained" onClick={saveAccount}
-                        disabled={accountSaving || !accountForm.label ||
-                            (!editingAccount && Object.keys(accountForm.credentials).length === 0)}
+                        disabled={
+                            accountSaving || !accountForm.label ||
+                            (!editingAccount && !tryParseCredentials(accountForm.credentialsJson ?? '')) ||
+                            !!(accountForm.credentialsJson && !tryParseCredentials(accountForm.credentialsJson ?? ''))
+                        }
                         sx={{ background: colors.primary.gradient }}>
                         {accountSaving ? <CircularProgress size={18} sx={{ color: '#fff' }} /> : 'Save'}
                     </Button>
