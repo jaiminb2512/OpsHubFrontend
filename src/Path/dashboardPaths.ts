@@ -4,6 +4,8 @@ export const DASHBOARD_PATHS = {
     STORAGE_CONFIG: '/dashboard/storage-config',
     PROJECT_ANALYTICS: '/dashboard/project/:id',
     API_KEY_ANALYTICS: '/dashboard/project/:id/api-keys',
+    GLOBAL_PROVIDERS: '/global-providers',
+    GLOBAL_PROVIDERS_CREATE: '/global-providers/create',
 };
 
 export const projectAnalyticsPath = (id: string) => `/dashboard/project/${id}`;

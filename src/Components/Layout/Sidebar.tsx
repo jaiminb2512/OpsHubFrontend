@@ -25,6 +25,7 @@ import {
   Dashboard as DashboardIcon,
   Storage as StorageIcon,
   EventAvailable as AttendanceIcon,
+  Language as GlobalProvidersIcon,
 } from '@mui/icons-material';
 import { PROJECT_PATHS, DASHBOARD_PATHS, ATTENDANCE_PATHS } from '../../Path';
 import { getUserInfo, type LoginResponse } from '../../Services/ApiServices';
@@ -46,6 +47,7 @@ const NAV_ITEMS = [
   { label: 'API Keys', path: PROJECT_PATHS.API_KEYS, icon: ApiKeyIcon },
   { label: 'Storage Config', path: DASHBOARD_PATHS.STORAGE_CONFIG, icon: StorageIcon },
   { label: 'Attendance', path: ATTENDANCE_PATHS.VIEW, icon: AttendanceIcon },
+  { label: 'Global Providers', path: DASHBOARD_PATHS.GLOBAL_PROVIDERS, icon: GlobalProvidersIcon },
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }: SidebarProps) => {
