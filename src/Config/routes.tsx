@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { PROJECT_PATHS, DASHBOARD_PATHS, ATTENDANCE_PATHS } from '../Path';
-import { ProjectListPage, ProjectFormPage, ProjectApiKeyPage, DashboardStatsPage, StorageConfigPage, AttendancePage, ProjectAnalyticsPage, ApiKeyAnalyticsPage, ProvidersPage, GlobalProvidersPage, CreateGlobalProviderPage } from './routePages';
+import { ProjectListPage, ProjectFormPage, ProjectApiKeyPage, DashboardStatsPage, StorageConfigPage, AttendancePage, ProjectAnalyticsPage, ApiKeyAnalyticsPage, ProvidersPage, GlobalProvidersPage, CreateGlobalProviderPage, EmailPage } from './routePages';
 
 export interface RouteConfig {
     path: string;
@@ -19,6 +19,7 @@ export const appRoutes: RouteConfig[] = [
     { path: DASHBOARD_PATHS.PROJECT_ANALYTICS, component: ProjectAnalyticsPage, requireAuth: true },
     { path: DASHBOARD_PATHS.API_KEY_ANALYTICS, component: ApiKeyAnalyticsPage, requireAuth: true },
     { path: PROJECT_PATHS.PROVIDERS, component: ProvidersPage, requireAuth: true },
+    { path: PROJECT_PATHS.EMAIL, component: EmailPage, requireAuth: true },
     { path: DASHBOARD_PATHS.GLOBAL_PROVIDERS, component: GlobalProvidersPage, requireAuth: true },
     { path: DASHBOARD_PATHS.GLOBAL_PROVIDERS_CREATE, component: CreateGlobalProviderPage, requireAuth: true },
 ];

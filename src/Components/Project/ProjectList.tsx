@@ -41,13 +41,14 @@ import {
     DeleteForever as HardDeleteIcon,
     Analytics as AnalyticsIcon,
     CloudQueue as ProvidersIcon,
+    Email as EmailIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getProjectsService, deleteProjectService, hardDeleteProjectService, type ProjectListItem } from '../../Services/ApiServices/projectServices';
 import { useToast } from '../../Utils/ToastContext';
 import { useConfirm } from '../../Utils/ConfirmDialogContext';
 import { PROJECT_PATHS } from '../../Path';
-import { projectProvidersPath } from '../../Path/projectPaths';
+import { projectProvidersPath, projectEmailPath } from '../../Path/projectPaths';
 import { projectAnalyticsPath } from '../../Path/dashboardPaths';
 import usePageTitle from '../../hooks/usePageTitle';
 
@@ -368,6 +369,15 @@ const ProjectList = () => {
                                                         onClick={() => navigate(projectProvidersPath(project.id))}
                                                     >
                                                         <ProvidersIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Email" arrow>
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() => navigate(projectEmailPath(project.id))}
+                                                    >
+                                                        <EmailIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Delete" arrow>
