@@ -217,7 +217,7 @@ export default function GlobalProvidersPage() {
         const ok = await confirm({
             title: 'Delete Global Provider',
             message: `Delete "${p.label}"? Projects using this as fallback will lose their provider.`,
-            confirmText: 'Delete', confirmColor: 'error',
+            confirmText: 'Delete',
         });
         if (!ok) return;
         try {
@@ -292,7 +292,7 @@ export default function GlobalProvidersPage() {
         const ok = await confirm({
             title: 'Delete Account',
             message: `Delete account "${label}"?`,
-            confirmText: 'Delete', confirmColor: 'error',
+            confirmText: 'Delete',
         });
         if (!ok) return;
         try {

@@ -106,7 +106,7 @@ function CategoryCard({
         const ok = await confirm({
             title: `Reset ${category} provider`,
             message: `This project will fall back to the global default ${category} provider. Continue?`,
-            confirmText: 'Reset', confirmColor: 'warning',
+            confirmText: 'Reset',
         });
         if (!ok) return;
         try {
