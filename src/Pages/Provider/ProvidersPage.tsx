@@ -194,18 +194,47 @@ function CategoryCard({
                             </IconButton>
                         </Tooltip>
                     </Stack>
-                ) : (
-                    <Stack direction="row" alignItems="center" spacing={1} mb={2.5}
-                        sx={{
-                            p: 1.5, borderRadius: 1.5,
-                            bgcolor: colors.background.secondary,
-                            border: `1px dashed ${colors.border.light}`,
-                        }}>
-                        <Typography fontSize={13} color="text.secondary">
-                            Using global default {label.toLowerCase()} provider
-                        </Typography>
-                    </Stack>
-                )}
+                ) : (() => {
+                    const defaultProvider = providers.find(p => p.isDefault);
+                    const defaultAccount = defaultProvider?.accounts?.find(a => a.isDefault && a.isActive && !a.isDeleted)
+                        ?? defaultProvider?.accounts?.find(a => a.isActive && !a.isDeleted);
+                    return (
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2.5}
+                            sx={{
+                                p: 1.5, borderRadius: 1.5,
+                                bgcolor: colors.background.secondary,
+                                border: `1px dashed ${colors.border.light}`,
+                            }}>
+                            <Typography fontSize={13} color="text.secondary">
+                                Using global default {label.toLowerCase()} provider
+                                {defaultProvider && defaultAccount && (
+                                    <> — <strong>{defaultProvider.label}</strong> · {defaultAccount.label}</>
+                                )}
+                            </Typography>
+                            {defaultProvider && defaultAccount && (
+                                <Button size="small" variant="outlined"
+                                    disabled={saving}
+                                    onClick={async () => {
+                                        setSaving(true);
+                                        try {
+                                            const res = await setProjectProviderService(projectId, {
+                                                providerId: defaultProvider.id,
+                                                providerAccountId: defaultAccount.id,
+                                                category,
+                                                isDefault: true,
+                                            });
+                                            if (res.success === 200) { showSuccess(`${label} provider set`); onSaved(); }
+                                            else showError(res.message || 'Failed');
+                                        } catch { showError('Failed to set provider'); }
+                                        finally { setSaving(false); }
+                                    }}
+                                    sx={{ ml: 2, flexShrink: 0, fontSize: 12, borderColor: colors.primary.main, color: colors.primary.main }}>
+                                    {saving ? <CircularProgress size={14} /> : 'Use Default'}
+                                </Button>
+                            )}
+                        </Stack>
+                    );
+                })()}
 
                 {/* Provider + Account selector */}
                 {providers.length === 0 ? (
