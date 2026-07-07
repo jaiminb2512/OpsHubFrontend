@@ -13,42 +13,51 @@ const globalUrl = (tail = '') =>
 
 export type ProviderCategory = 'storage' | 'email';
 
+export type ProviderCatalogEntry = {
+    id: string;
+    name: string;
+    label: string;
+    category: ProviderCategory;
+    description?: string | null;
+};
+
 export type ProviderAccount = {
     id: string;
     providerId: string;
-    projectId: string;
+    projectId: string | null;
     label: string;
     isDefault: boolean;
     isActive: boolean;
     isDeleted: boolean;
     createdAt: string;
     updatedAt: string;
-    provider?: { id: string; name: string; label: string; category: ProviderCategory };
+    provider?: {
+        id: string;
+        projectId: string | null;
+        label: string;
+        provider: { id: string; name: string; label: string; category: ProviderCategory };
+    };
     creator?: { userId: string; fullName: string } | null;
 };
 
 export type ProjectProvider = {
     id: string;
-    projectId: string;
-    category: ProviderCategory;
-    name: string;
+    projectId: string | null;
     label: string;
-    description?: string | null;
     isDefault: boolean;
     isActive: boolean;
     isDeleted: boolean;
     createdAt: string;
     updatedAt: string;
+    provider: ProviderCatalogEntry;
     creator?: { userId: string; fullName: string } | null;
     accounts?: ProviderAccount[];
     _count?: { accounts: number };
 };
 
 export type CreateProviderPayload = {
-    category: ProviderCategory;
-    name: string;
+    providerId: string;
     label: string;
-    description?: string;
     isDefault?: boolean;
     initialAccounts?: Array<{
         label: string;
@@ -59,7 +68,6 @@ export type CreateProviderPayload = {
 
 export type UpdateProviderPayload = {
     label?: string;
-    description?: string;
     isActive?: boolean;
     isDefault?: boolean;
 };
@@ -74,6 +82,18 @@ export type UpdateAccountPayload = {
     label?: string;
     credentials?: Record<string, string>;
     isActive?: boolean;
+};
+
+// ── Provider Catalog ───────────────────────────────────
+
+export const getProviderCatalogService = async (
+    category?: ProviderCategory
+): Promise<ApiResponse<ProviderCatalogEntry[]>> => {
+    const params = category ? { category } : {};
+    const res = await apiInstance.get<ApiResponse<ProviderCatalogEntry[]>>(
+        `${BASE}/global-providers/catalog`, { params }
+    );
+    return res.data;
 };
 
 // ── Provider endpoints ─────────────────────────────────

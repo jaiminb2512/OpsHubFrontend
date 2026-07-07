@@ -183,8 +183,8 @@ export default function GlobalProvidersPage() {
 
     useEffect(() => { load(); }, [load]);
 
-    const storageProviders = providers.filter(p => p.category === 'storage' && !p.isDeleted);
-    const emailProviders = providers.filter(p => p.category === 'email' && !p.isDeleted);
+    const storageProviders = providers.filter(p => p.provider.category === 'storage' && !p.isDeleted);
+    const emailProviders = providers.filter(p => p.provider.category === 'email' && !p.isDeleted);
 
     // ── Provider actions ─────────────────────────────────────────────────────
 
@@ -350,7 +350,7 @@ export default function GlobalProvidersPage() {
                                     <Box>
                                         <Stack direction="row" alignItems="center" spacing={1}>
                                             <Typography fontWeight={700} fontSize={15}>{p.label}</Typography>
-                                            <Chip label={p.name} size="small"
+                                            <Chip label={p.provider.name} size="small"
                                                 sx={{
                                                     bgcolor: colors.primary.rgba.light,
                                                     color: colors.primary.main, fontSize: 11
@@ -478,7 +478,7 @@ export default function GlobalProvidersPage() {
             {/* ── Add / Edit Account Dialog ── */}
             <Dialog open={accountDialog} onClose={() => setAccountDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle fontWeight={700}>
-                    {editingAccount ? 'Edit Account' : `Add Account — ${accountProvider?.name}`}
+                    {editingAccount ? 'Edit Account' : `Add Account — ${accountProvider?.provider.name}`}
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2.5} mt={1}>
