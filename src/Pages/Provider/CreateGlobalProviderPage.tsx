@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Button, Chip, CircularProgress, Divider, FormControl,
-    FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Select,
+    FormControlLabel, FormHelperText, IconButton, InputLabel, MenuItem, Paper, Select,
     Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
 import {
@@ -17,8 +17,8 @@ import usePageTitle from '../../hooks/usePageTitle';
 import { DASHBOARD_PATHS } from '../../Path';
 import {
     createGlobalProviderService,
-    getProviderCatalogService,
-    type ProviderCatalogEntry,
+    getProviderCategoriesService,
+    type ProviderCategory,
 } from '../../Services/ApiServices/providerServices';
 
 type AccountDraft = {
@@ -35,7 +35,7 @@ const newDraft = (isFirst = false): AccountDraft => ({
     isDefault: isFirst,
 });
 
-const tryParseJson = (raw: string): Record<string, string> | null => {
+const tryParseJson = (raw: string): Record<string, unknown> | null => {
     try {
         const parsed = JSON.parse(raw);
         if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) return parsed;
@@ -48,23 +48,21 @@ export default function CreateGlobalProviderPage() {
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
 
-    const [catalog, setCatalog] = useState<ProviderCatalogEntry[]>([]);
-    const [catalogLoading, setCatalogLoading] = useState(true);
-    const [selectedProviderId, setSelectedProviderId] = useState('');
+    const [categories, setCategories] = useState<ProviderCategory[]>([]);
+    const [category, setCategory] = useState<ProviderCategory | ''>('');
+    const [name, setName] = useState('');
     const [label, setLabel] = useState('');
+    const [description, setDescription] = useState('');
     const [isDefault, setIsDefault] = useState(true);
     const [accounts, setAccounts] = useState<AccountDraft[]>([newDraft(true)]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        getProviderCatalogService()
-            .then(res => { if (res.success === 200) setCatalog(res.data ?? []); })
-            .catch(() => showError('Failed to load provider catalog'))
-            .finally(() => setCatalogLoading(false));
+        getProviderCategoriesService()
+            .then(res => { if (res.success === 200) setCategories(res.data ?? []); })
+            .catch(() => showError('Failed to load provider categories'));
     }, []);
-
-    const selectedCatalog = catalog.find(c => c.id === selectedProviderId);
 
     const updateAccount = (id: string, patch: Partial<AccountDraft>) =>
         setAccounts(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a));
@@ -83,7 +81,8 @@ export default function CreateGlobalProviderPage() {
 
     const validate = () => {
         const e: Record<string, string> = {};
-        if (!selectedProviderId) e.providerId = 'Select a provider';
+        if (!category) e.category = 'Select a category';
+        if (!name.trim()) e.name = 'Provider name is required (e.g. cloudinary, s3)';
         if (!label.trim()) e.label = 'Label is required';
         accounts.forEach((acc) => {
             if (!acc.label.trim()) e[`acc_label_${acc.id}`] = 'Account label is required';
@@ -96,12 +95,14 @@ export default function CreateGlobalProviderPage() {
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        if (!validate() || !category) return;
         setSaving(true);
         try {
             const res = await createGlobalProviderService({
-                providerId: selectedProviderId,
+                name: name.trim().toLowerCase(),
                 label: label.trim(),
+                category,
+                description: description.trim() || undefined,
                 isDefault,
                 initialAccounts: accounts.map(acc => ({
                     label: acc.label.trim(),
@@ -116,8 +117,9 @@ export default function CreateGlobalProviderPage() {
             } else {
                 showError(res.message || 'Failed to create provider');
             }
-        } catch (e: any) {
-            showError(e?.response?.data?.message || 'Error creating provider');
+        } catch (e: unknown) {
+            const err = e as { response?: { data?: { message?: string } } };
+            showError(err?.response?.data?.message || 'Error creating provider');
         } finally {
             setSaving(false);
         }
@@ -129,34 +131,33 @@ export default function CreateGlobalProviderPage() {
                 <Typography fontWeight={700} fontSize={15} mb={2.5}>Provider Details</Typography>
 
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
-                    <FormControl size="small" sx={{ flex: 1 }} error={!!errors.providerId}>
-                        <InputLabel>Provider *</InputLabel>
+                    <FormControl size="small" sx={{ minWidth: 160 }} error={!!errors.category}>
+                        <InputLabel>Category *</InputLabel>
                         <Select
-                            value={selectedProviderId}
-                            label="Provider *"
-                            disabled={catalogLoading}
+                            value={category}
+                            label="Category *"
                             onChange={e => {
-                                setSelectedProviderId(e.target.value);
-                                if (errors.providerId) setErrors(p => ({ ...p, providerId: '' }));
+                                setCategory(e.target.value as ProviderCategory);
+                                if (errors.category) setErrors(p => ({ ...p, category: '' }));
                             }}
                         >
-                            {catalogLoading && <MenuItem value=""><em>Loading…</em></MenuItem>}
-                            {catalog.map(p => (
-                                <MenuItem key={p.id} value={p.id}>
-                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                        <span>{p.label}</span>
-                                        <Chip label={p.category} size="small"
-                                            sx={{ height: 18, fontSize: 10, textTransform: 'capitalize' }} />
-                                    </Stack>
-                                </MenuItem>
+                            {categories.map(c => (
+                                <MenuItem key={c} value={c} sx={{ textTransform: 'capitalize' }}>{c}</MenuItem>
                             ))}
                         </Select>
-                        {errors.providerId && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                                {errors.providerId}
-                            </Typography>
-                        )}
+                        {errors.category && <FormHelperText>{errors.category}</FormHelperText>}
                     </FormControl>
+
+                    <TextField size="small" label="Provider Name *"
+                        placeholder="e.g. cloudinary, s3, brevo"
+                        value={name}
+                        error={!!errors.name}
+                        helperText={errors.name || 'Lowercase identifier used in code routing'}
+                        sx={{ flex: 1 }}
+                        onChange={e => {
+                            setName(e.target.value.toLowerCase().replace(/\s+/g, '-'));
+                            if (errors.name) setErrors(p => ({ ...p, name: '' }));
+                        }} />
 
                     <TextField size="small" label="Label *"
                         placeholder="e.g. Main Cloudinary, EU Bucket"
@@ -165,6 +166,14 @@ export default function CreateGlobalProviderPage() {
                         helperText={errors.label}
                         sx={{ flex: 1 }}
                         onChange={e => { setLabel(e.target.value); if (errors.label) setErrors(p => ({ ...p, label: '' })); }} />
+                </Stack>
+
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start">
+                    <TextField size="small" label="Description (optional)"
+                        placeholder="Brief description of this provider"
+                        value={description}
+                        sx={{ flex: 1 }}
+                        onChange={e => setDescription(e.target.value)} />
 
                     <FormControlLabel
                         control={<Switch checked={isDefault} onChange={e => setIsDefault(e.target.checked)} />}
@@ -172,10 +181,6 @@ export default function CreateGlobalProviderPage() {
                         sx={{ flexShrink: 0, mt: 0.5 }}
                     />
                 </Stack>
-
-                {selectedCatalog?.description && (
-                    <Typography variant="caption" color="text.secondary">{selectedCatalog.description}</Typography>
-                )}
             </Paper>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}>

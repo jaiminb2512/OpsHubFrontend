@@ -9,117 +9,126 @@ const url = (projectId: string, tail = '') =>
 const globalUrl = (tail = '') =>
     `${BASE}/global-providers${tail}`;
 
+const ppUrl = (projectId: string, tail = '') =>
+    `${BASE}/projects/${projectId}/project-providers${tail}`;
+
 // ── Types ──────────────────────────────────────────────
 
 export type ProviderCategory = 'storage' | 'email';
 
-export type ProviderCatalogEntry = {
+/** A user-configured provider instance (global: projectId=null, project-scoped: projectId set) */
+export type Provider = {
     id: string;
     name: string;
     label: string;
     category: ProviderCategory;
     description?: string | null;
+    projectId: string | null;
+    isDefault: boolean;
+    isActive: boolean;
+    isDeleted: boolean;
+    createdAt: string;
+    updatedAt: string;
+    creator?: { userId: string; fullName: string } | null;
+    _count?: { accounts: number };
+    accounts?: ProviderAccount[];
 };
 
 export type ProviderAccount = {
     id: string;
     providerId: string;
-    projectId: string | null;
     label: string;
     isDefault: boolean;
     isActive: boolean;
     isDeleted: boolean;
     createdAt: string;
     updatedAt: string;
-    provider?: {
-        id: string;
-        projectId: string | null;
-        label: string;
-        provider: { id: string; name: string; label: string; category: ProviderCategory };
-    };
+    provider?: { id: string; name: string; label: string; category: ProviderCategory; projectId: string | null };
     creator?: { userId: string; fullName: string } | null;
 };
 
-export type ProjectProvider = {
+/** Project ↔ provider+account assignment (ProjectProvider join table) */
+export type ProjectProviderAssignment = {
     id: string;
-    projectId: string | null;
-    label: string;
+    projectId: string;
+    category: ProviderCategory;
     isDefault: boolean;
-    isActive: boolean;
-    isDeleted: boolean;
     createdAt: string;
     updatedAt: string;
-    provider: ProviderCatalogEntry;
-    creator?: { userId: string; fullName: string } | null;
-    accounts?: ProviderAccount[];
-    _count?: { accounts: number };
+    provider: { id: string; name: string; label: string; category: ProviderCategory; projectId: string | null };
+    providerAccount: { id: string; label: string; isDefault: boolean; isActive: boolean };
 };
 
 export type CreateProviderPayload = {
-    providerId: string;
+    name: string;
     label: string;
+    category: ProviderCategory;
+    description?: string;
     isDefault?: boolean;
     initialAccounts?: Array<{
         label: string;
-        credentials: Record<string, string>;
+        credentials: Record<string, unknown>;
         isDefault?: boolean;
     }>;
 };
 
 export type UpdateProviderPayload = {
     label?: string;
+    description?: string;
     isActive?: boolean;
     isDefault?: boolean;
 };
 
 export type CreateAccountPayload = {
     label: string;
-    credentials: Record<string, string>;
+    credentials: Record<string, unknown>;
     isDefault?: boolean;
 };
 
 export type UpdateAccountPayload = {
     label?: string;
-    credentials?: Record<string, string>;
+    credentials?: Record<string, unknown>;
     isActive?: boolean;
 };
 
-// ── Provider Catalog ───────────────────────────────────
+export type SetProjectProviderPayload = {
+    providerId: string;
+    providerAccountId: string;
+    category: ProviderCategory;
+    isDefault?: boolean;
+};
 
-export const getProviderCatalogService = async (
-    category?: ProviderCategory
-): Promise<ApiResponse<ProviderCatalogEntry[]>> => {
-    const params = category ? { category } : {};
-    const res = await apiInstance.get<ApiResponse<ProviderCatalogEntry[]>>(
-        `${BASE}/global-providers/catalog`, { params }
-    );
+// ── Provider Categories ────────────────────────────────
+
+export const getProviderCategoriesService = async (): Promise<ApiResponse<ProviderCategory[]>> => {
+    const res = await apiInstance.get<ApiResponse<ProviderCategory[]>>(`${BASE}/global-providers/categories`);
     return res.data;
 };
 
-// ── Provider endpoints ─────────────────────────────────
+// ── Project-scoped Provider endpoints ─────────────────
 
 export const getProvidersService = async (
     projectId: string,
     category?: ProviderCategory
-): Promise<ApiResponse<ProjectProvider[]>> => {
+): Promise<ApiResponse<Provider[]>> => {
     const params = category ? { category } : {};
-    const res = await apiInstance.get<ApiResponse<ProjectProvider[]>>(url(projectId), { params });
+    const res = await apiInstance.get<ApiResponse<Provider[]>>(url(projectId), { params });
     return res.data;
 };
 
 export const getProviderByIdService = async (
     projectId: string,
     providerId: string
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.get<ApiResponse<ProjectProvider>>(url(projectId, `/${providerId}`));
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.get<ApiResponse<Provider>>(url(projectId, `/${providerId}`));
     return res.data;
 };
 
 export const createProviderService = async (
     projectId: string,
     data: CreateProviderPayload
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.post<ApiResponse<ProjectProvider>>(url(projectId), data);
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.post<ApiResponse<Provider>>(url(projectId), data);
     return res.data;
 };
 
@@ -127,16 +136,16 @@ export const updateProviderService = async (
     projectId: string,
     providerId: string,
     data: UpdateProviderPayload
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.patch<ApiResponse<ProjectProvider>>(url(projectId, `/${providerId}`), data);
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.patch<ApiResponse<Provider>>(url(projectId, `/${providerId}`), data);
     return res.data;
 };
 
 export const setDefaultProviderService = async (
     projectId: string,
     providerId: string
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.patch<ApiResponse<ProjectProvider>>(url(projectId, `/${providerId}/set-default`));
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.patch<ApiResponse<Provider>>(url(projectId, `/${providerId}/set-default`));
     return res.data;
 };
 
@@ -148,7 +157,7 @@ export const deleteProviderService = async (
     return res.data;
 };
 
-// ── Account endpoints ──────────────────────────────────
+// ── Project-scoped Account endpoints ──────────────────
 
 export const getProviderAccountsService = async (
     projectId: string,
@@ -174,8 +183,7 @@ export const updateProviderAccountService = async (
     data: UpdateAccountPayload
 ): Promise<ApiResponse<ProviderAccount>> => {
     const res = await apiInstance.patch<ApiResponse<ProviderAccount>>(
-        url(projectId, `/${providerId}/accounts/${accountId}`),
-        data
+        url(projectId, `/${providerId}/accounts/${accountId}`), data
     );
     return res.data;
 };
@@ -213,35 +221,35 @@ export const testProviderAccountService = async (
     return res.data;
 };
 
-// ── Global provider endpoints (no projectId) ───────────────────────────────
+// ── Global Provider endpoints (no projectId) ──────────
 
 export const getGlobalProvidersService = async (
     category?: ProviderCategory
-): Promise<ApiResponse<ProjectProvider[]>> => {
+): Promise<ApiResponse<Provider[]>> => {
     const params = category ? { category } : {};
-    const res = await apiInstance.get<ApiResponse<ProjectProvider[]>>(globalUrl(), { params });
+    const res = await apiInstance.get<ApiResponse<Provider[]>>(globalUrl(), { params });
     return res.data;
 };
 
 export const createGlobalProviderService = async (
     data: CreateProviderPayload
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.post<ApiResponse<ProjectProvider>>(globalUrl(), data);
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.post<ApiResponse<Provider>>(globalUrl(), data);
     return res.data;
 };
 
 export const updateGlobalProviderService = async (
     providerId: string,
     data: UpdateProviderPayload
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.patch<ApiResponse<ProjectProvider>>(globalUrl(`/${providerId}`), data);
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.patch<ApiResponse<Provider>>(globalUrl(`/${providerId}`), data);
     return res.data;
 };
 
 export const setDefaultGlobalProviderService = async (
     providerId: string
-): Promise<ApiResponse<ProjectProvider>> => {
-    const res = await apiInstance.patch<ApiResponse<ProjectProvider>>(globalUrl(`/${providerId}/set-default`));
+): Promise<ApiResponse<Provider>> => {
+    const res = await apiInstance.patch<ApiResponse<Provider>>(globalUrl(`/${providerId}/set-default`));
     return res.data;
 };
 
@@ -300,5 +308,52 @@ export const testGlobalProviderAccountService = async (
     const res = await apiInstance.post<ApiResponse<{ tested: boolean; message: string }>>(
         globalUrl(`/${providerId}/accounts/${accountId}/test`)
     );
+    return res.data;
+};
+
+// ── ProjectProvider assignment endpoints ──────────────
+
+export const getProjectProviderAssignmentsService = async (
+    projectId: string,
+    category?: ProviderCategory
+): Promise<ApiResponse<ProjectProviderAssignment[]>> => {
+    const params = category ? { category } : {};
+    const res = await apiInstance.get<ApiResponse<ProjectProviderAssignment[]>>(ppUrl(projectId), { params });
+    return res.data;
+};
+
+export const setProjectProviderService = async (
+    projectId: string,
+    data: SetProjectProviderPayload
+): Promise<ApiResponse<ProjectProviderAssignment>> => {
+    const res = await apiInstance.post<ApiResponse<ProjectProviderAssignment>>(ppUrl(projectId), data);
+    return res.data;
+};
+
+export const resetProjectProviderService = async (
+    projectId: string,
+    category: ProviderCategory
+): Promise<ApiResponse<{ reset: boolean; message: string }>> => {
+    const res = await apiInstance.post<ApiResponse<{ reset: boolean; message: string }>>(
+        ppUrl(projectId, '/reset'), { category }
+    );
+    return res.data;
+};
+
+export const setDefaultProjectProviderService = async (
+    projectId: string,
+    assignmentId: string
+): Promise<ApiResponse<ProjectProviderAssignment>> => {
+    const res = await apiInstance.patch<ApiResponse<ProjectProviderAssignment>>(
+        ppUrl(projectId, `/${assignmentId}/set-default`)
+    );
+    return res.data;
+};
+
+export const removeProjectProviderService = async (
+    projectId: string,
+    assignmentId: string
+): Promise<ApiResponse<null>> => {
+    const res = await apiInstance.delete<ApiResponse<null>>(ppUrl(projectId, `/${assignmentId}`));
     return res.data;
 };

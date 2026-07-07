@@ -34,7 +34,7 @@ import {
     setDefaultGlobalAccountService,
     deleteGlobalProviderAccountService,
     testGlobalProviderAccountService,
-    type ProjectProvider,
+    type Provider,
     type ProviderAccount,
     type UpdateProviderPayload,
 } from '../../Services/ApiServices/providerServices';
@@ -139,16 +139,16 @@ const AccountRow = ({
 export default function GlobalProvidersPage() {
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
-    const confirm = useConfirm();
+    const { confirm } = useConfirm();
 
-    const [providers, setProviders] = useState<ProjectProvider[]>([]);
+    const [providers, setProviders] = useState<Provider[]>([]);
     const [loading, setLoading] = useState(true);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
     const [testingId, setTestingId] = useState<string | null>(null);
 
     // Edit provider dialog (for existing providers only — create uses dedicated page)
     const [providerDialog, setProviderDialog] = useState(false);
-    const [editingProvider, setEditingProvider] = useState<ProjectProvider | null>(null);
+    const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
     const [providerForm, setProviderForm] = useState<UpdateProviderPayload>({
         label: '', description: '', isDefault: false,
     });
@@ -156,7 +156,7 @@ export default function GlobalProvidersPage() {
 
     // Account dialog
     const [accountDialog, setAccountDialog] = useState(false);
-    const [accountProvider, setAccountProvider] = useState<ProjectProvider | null>(null);
+    const [accountProvider, setAccountProvider] = useState<Provider | null>(null);
     const [editingAccount, setEditingAccount] = useState<ProviderAccount | null>(null);
     const [accountForm, setAccountForm] = useState<{ label: string; credentialsJson: string; isDefault: boolean }>({
         label: '', credentialsJson: '', isDefault: false,
@@ -183,12 +183,12 @@ export default function GlobalProvidersPage() {
 
     useEffect(() => { load(); }, [load]);
 
-    const storageProviders = providers.filter(p => p.provider.category === 'storage' && !p.isDeleted);
-    const emailProviders = providers.filter(p => p.provider.category === 'email' && !p.isDeleted);
+    const storageProviders = providers.filter(p => p.category === 'storage' && !p.isDeleted);
+    const emailProviders = providers.filter(p => p.category === 'email' && !p.isDeleted);
 
     // ── Provider actions ─────────────────────────────────────────────────────
 
-    const openEditProvider = (p: ProjectProvider) => {
+    const openEditProvider = (p: Provider) => {
         setEditingProvider(p);
         setProviderForm({ label: p.label, description: p.description ?? '', isDefault: p.isDefault });
         setProviderDialog(true);
@@ -205,7 +205,7 @@ export default function GlobalProvidersPage() {
         finally { setProviderSaving(false); }
     };
 
-    const handleSetDefaultProvider = async (p: ProjectProvider) => {
+    const handleSetDefaultProvider = async (p: Provider) => {
         try {
             await setDefaultGlobalProviderService(p.id);
             showSuccess(`${p.label} set as default`);
@@ -213,7 +213,7 @@ export default function GlobalProvidersPage() {
         } catch { showError('Failed to set default'); }
     };
 
-    const handleDeleteProvider = async (p: ProjectProvider) => {
+    const handleDeleteProvider = async (p: Provider) => {
         const ok = await confirm({
             title: 'Delete Global Provider',
             message: `Delete "${p.label}"? Projects using this as fallback will lose their provider.`,
@@ -238,14 +238,14 @@ export default function GlobalProvidersPage() {
         return null;
     };
 
-    const openAddAccount = (p: ProjectProvider) => {
+    const openAddAccount = (p: Provider) => {
         setAccountProvider(p);
         setEditingAccount(null);
         setAccountForm({ label: '', credentialsJson: '{}', isDefault: false });
         setAccountDialog(true);
     };
 
-    const openEditAccount = (p: ProjectProvider, account: ProviderAccount) => {
+    const openEditAccount = (p: Provider, account: ProviderAccount) => {
         setAccountProvider(p);
         setEditingAccount(account);
         setAccountForm({ label: account.label, credentialsJson: '', isDefault: account.isDefault });
@@ -314,7 +314,7 @@ export default function GlobalProvidersPage() {
 
     // ── Render section ───────────────────────────────────────────────────────
 
-    const renderSection = (sectionProviders: ProjectProvider[], category: 'storage' | 'email') => (
+    const renderSection = (sectionProviders: Provider[], category: 'storage' | 'email') => (
         <Box mb={4}>
             <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                 {category === 'storage'
@@ -350,7 +350,7 @@ export default function GlobalProvidersPage() {
                                     <Box>
                                         <Stack direction="row" alignItems="center" spacing={1}>
                                             <Typography fontWeight={700} fontSize={15}>{p.label}</Typography>
-                                            <Chip label={p.provider.name} size="small"
+                                            <Chip label={p.name} size="small"
                                                 sx={{
                                                     bgcolor: colors.primary.rgba.light,
                                                     color: colors.primary.main, fontSize: 11
@@ -478,7 +478,7 @@ export default function GlobalProvidersPage() {
             {/* ── Add / Edit Account Dialog ── */}
             <Dialog open={accountDialog} onClose={() => setAccountDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle fontWeight={700}>
-                    {editingAccount ? 'Edit Account' : `Add Account — ${accountProvider?.provider.name}`}
+                    {editingAccount ? 'Edit Account' : `Add Account — ${accountProvider?.name}`}
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2.5} mt={1}>
