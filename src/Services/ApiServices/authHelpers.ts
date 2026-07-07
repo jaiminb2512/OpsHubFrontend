@@ -43,7 +43,7 @@ export const autoLogin = async (): Promise<boolean> => {
         const token = getAuthToken();
         if (!token) return false;
 
-        const response = await apiInstance.get<ApiResponse<LoginResponse>>(getApiUrl('me'));
+        const response = await apiInstance.get<ApiResponse<LoginResponse>>(getApiUrl('getMe'));
         const data = response.data;
 
         if (data.success === 200 && data.data) {

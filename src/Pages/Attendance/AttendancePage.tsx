@@ -9,7 +9,7 @@ import apiInstance from '../../Utils/ApiUtils';
 import { getApiUrl } from '../../Utils/api';
 import { useToast } from '../../Utils/ToastContext';
 import usePageTitle from '../../hooks/usePageTitle';
-import { formatUtcToLocalTime } from '../../Utils/attendanceTime';
+import { formatUtcToLocalTime } from '../../Utils/dateUtils';
 
 interface Project {
     id: string;

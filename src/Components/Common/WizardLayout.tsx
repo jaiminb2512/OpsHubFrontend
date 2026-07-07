@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import colors from '../../Utils/colors';
-import useWizardHeader from '../../hooks/useWizardHeader';
 import WizardTitleBar from './WizardTitleBar';
 
 export interface WizardLayoutProps {
@@ -45,21 +44,6 @@ const WizardLayout: React.FC<WizardLayoutProps> = ({
         if (onParentBack) onParentBack();
         else navigate(-1);
     };
-
-    useWizardHeader({
-        title,
-        steps,
-        activeStep,
-        onStepClick,
-        onNext,
-        loading,
-        nextButtonText,
-        finishButtonText,
-        extraActions,
-        parentBackLabel,
-        onParentBack: handleParentBack,
-        disabled: disableHeaderSync,
-    });
 
     return (
         <Box sx={{ pb: disableHeaderSync ? 0 : 2, pt: disableHeaderSync ? 0 : 0 }}>

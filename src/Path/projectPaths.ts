@@ -4,7 +4,11 @@ export const PROJECT_PATHS = {
     EDIT: '/project/edit/:id',
     API_KEYS: '/api-keys',
     IMPORT: '/import-data',
+    PROVIDERS: '/project/:id/providers',
 };
+
+export const projectProvidersPath = (projectId: string) =>
+    `/project/${projectId}/providers`;
 
 // ?projectId=xxx  — pre-select a project
 // ?companyId=xxx  — filter projects by company

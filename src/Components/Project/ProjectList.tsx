@@ -40,12 +40,14 @@ import {
     VpnKey as VpnKeyIcon,
     DeleteForever as HardDeleteIcon,
     Analytics as AnalyticsIcon,
+    CloudQueue as ProvidersIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getProjectsService, deleteProjectService, hardDeleteProjectService, type ProjectListItem } from '../../Services/ApiServices/projectServices';
 import { useToast } from '../../Utils/ToastContext';
 import { useConfirm } from '../../Utils/ConfirmDialogContext';
 import { PROJECT_PATHS } from '../../Path';
+import { projectProvidersPath } from '../../Path/projectPaths';
 import { projectAnalyticsPath } from '../../Path/dashboardPaths';
 import usePageTitle from '../../hooks/usePageTitle';
 
@@ -357,6 +359,15 @@ const ProjectList = () => {
                                                         onClick={() => navigate(`${PROJECT_PATHS.API_KEYS}?projectId=${project.id}`)}
                                                     >
                                                         <VpnKeyIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Providers" arrow>
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() => navigate(projectProvidersPath(project.id))}
+                                                    >
+                                                        <ProvidersIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Delete" arrow>
