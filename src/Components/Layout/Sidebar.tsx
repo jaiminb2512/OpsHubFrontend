@@ -23,7 +23,6 @@ import {
   BusinessCenter as ProjectIcon,
   VpnKey as ApiKeyIcon,
   Dashboard as DashboardIcon,
-  Storage as StorageIcon,
   EventAvailable as AttendanceIcon,
   Language as GlobalProvidersIcon,
 } from '@mui/icons-material';
@@ -45,7 +44,6 @@ const NAV_ITEMS = [
   { label: 'Dashboard', path: DASHBOARD_PATHS.STATS, icon: DashboardIcon },
   { label: 'Projects', path: PROJECT_PATHS.LIST, icon: ProjectIcon },
   { label: 'API Keys', path: PROJECT_PATHS.API_KEYS, icon: ApiKeyIcon },
-  { label: 'Storage Config', path: DASHBOARD_PATHS.STORAGE_CONFIG, icon: StorageIcon },
   { label: 'Attendance', path: ATTENDANCE_PATHS.VIEW, icon: AttendanceIcon },
   { label: 'Global Providers', path: DASHBOARD_PATHS.GLOBAL_PROVIDERS, icon: GlobalProvidersIcon },
 ];
