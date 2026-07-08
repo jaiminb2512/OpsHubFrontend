@@ -5,10 +5,14 @@ export const PROJECT_PATHS = {
     API_KEYS: '/api-keys',
     IMPORT: '/import-data',
     PROVIDERS: '/project/:id/providers',
+    EMAIL: '/project/:id/email',
 };
 
 export const projectProvidersPath = (projectId: string) =>
     `/project/${projectId}/providers`;
+
+export const projectEmailPath = (projectId: string) =>
+    `/project/${projectId}/email`;
 
 // ?projectId=xxx  — pre-select a project
 // ?companyId=xxx  — filter projects by company
