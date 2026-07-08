@@ -10,3 +10,4 @@ export const ApiKeyAnalyticsPage = lazyPage(() => import('../Pages/Analytics/Api
 export const ProvidersPage = lazyPage(() => import('../Pages/Provider/ProvidersPage'));
 export const GlobalProvidersPage = lazyPage(() => import('../Pages/Provider/GlobalProvidersPage'));
 export const CreateGlobalProviderPage = lazyPage(() => import('../Pages/Provider/CreateGlobalProviderPage'));
+export const EmailPage = lazyPage(() => import('../Pages/Email/EmailPage'));

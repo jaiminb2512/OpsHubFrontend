@@ -48,6 +48,22 @@ const cardSx = {
     mb: 2,
 };
 
+const credentialPlaceholder = (providerName?: string) => {
+    switch (providerName?.toLowerCase()) {
+        case 'brevo':
+        case 'resend':
+        case 'sendgrid':
+            return '{\n  "apiKey": "xkeysib-...",\n  "defaultFrom": "OpsHub <noreply@yourdomain.com>"\n}';
+        case 'nodemailer-smtp':
+        case 'smtp':
+            return '{\n  "host": "smtp.example.com",\n  "port": 587,\n  "secure": false,\n  "user": "...",\n  "pass": "...",\n  "defaultFrom": "OpsHub <noreply@yourdomain.com>"\n}';
+        case 'cloudinary':
+            return '{\n  "cloudName": "...",\n  "apiKey": "...",\n  "apiSecret": "..."\n}';
+        default:
+            return '{\n  "apiKey": "...",\n  "defaultFrom": "Name <you@example.com>"\n}';
+    }
+};
+
 const headerSx = {
     p: 2,
     display: 'flex',
@@ -490,7 +506,7 @@ export default function GlobalProvidersPage() {
                         <TextField
                             fullWidth multiline rows={7}
                             label={editingAccount ? 'Credentials (JSON) — leave empty to keep existing' : 'Credentials (JSON) *'}
-                            placeholder={'{\n  "apiKey": "...",\n  "fromEmail": "you@example.com"\n}'}
+                            placeholder={credentialPlaceholder(accountProvider?.name)}
                             value={accountForm.credentialsJson ?? ''}
                             helperText={
                                 accountForm.credentialsJson && !tryParseCredentials(accountForm.credentialsJson ?? '')
