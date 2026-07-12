@@ -5,7 +5,7 @@ import {
     Table, TableHead, TableBody, TableRow, TableCell,
     TableContainer, IconButton, Tooltip, MenuItem,
     Select, OutlinedInput, Checkbox, ListItemText,
-    Button, Collapse,
+    Button,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -15,7 +15,6 @@ import {
     CloudDownload as DownloadIcon,
     Delete as DeleteIcon,
     Error as ErrorIcon,
-    FilterList as FilterIcon,
     Close as CloseIcon,
     SearchOff as EmptyIcon,
 } from '@mui/icons-material';
@@ -202,7 +201,6 @@ const AssetAnalyticsPage = () => {
     const [actionRows, setActionRows] = useState<AnalyticsRow[]>([]); // always-on action breakdown
     const [loading, setLoading] = useState(false);
     const [preset, setPreset] = useState('7d');
-    const [filtersOpen, setFiltersOpen] = useState(false);
 
     // Reference data
     const [projects, setProjects] = useState<ProjectListItem[]>([]);
@@ -362,10 +360,8 @@ const AssetAnalyticsPage = () => {
             </Grid>
 
             {/* Filter bar */}
-            <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, p: 2.5, mb: activeEntityFilters.length ? 1.5 : 3 }}>
-
-                {/* Row 1: Group By + Date Range + Filters toggle */}
-                <Stack direction="row" flexWrap="wrap" gap={2.5} alignItems="flex-end">
+            <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, px: 2, py: 1.25, mb: activeEntityFilters.length ? 1.5 : 3 }}>
+                <Stack direction="row" flexWrap="wrap" gap={1.5} alignItems="center">
 
                     {/* Group By */}
                     <Box>
@@ -383,11 +379,11 @@ const AssetAnalyticsPage = () => {
                                     {(selected as AnalyticsGroupBy[]).map(v => (
                                         <Chip key={v}
                                             label={GROUP_BY_OPTIONS.find(o => o.value === v)?.label ?? v}
-                                            size="small" sx={{ height: 20, fontSize: 11 }} />
+                                            size="small" sx={{ height: 18, fontSize: 11 }} />
                                     ))}
                                 </Stack>
                             )}
-                            sx={{ minWidth: 200, maxWidth: 340 }}
+                            sx={{ minWidth: 160, maxWidth: 280 }}
                             MenuProps={{ PaperProps: { sx: { maxHeight: 280 } } }}
                         >
                             {GROUP_BY_OPTIONS.map(o => (
@@ -402,103 +398,84 @@ const AssetAnalyticsPage = () => {
                     {/* Date Range */}
                     <Box>
                         <FilterLabel>Date Range</FilterLabel>
-                        <Stack direction="row" alignItems="center" gap={1}>
+                        <Stack direction="row" alignItems="center" gap={0.75}>
                             <ToggleButtonGroup value={preset} exclusive onChange={handlePreset} size="small"
                                 sx={{ '& .MuiToggleButtonGroup-grouped': { border: '1px solid !important', borderRadius: '6px !important', m: 0 } }}>
                                 {PRESET_RANGES.map(p => (
-                                    <ToggleButton key={p.label} value={p.label} sx={{ px: 1.5, py: 0.5, fontSize: 12, textTransform: 'none' }}>
+                                    <ToggleButton key={p.label} value={p.label} sx={{ px: 1.25, py: 0.4, fontSize: 11, textTransform: 'none' }}>
                                         {p.label}
                                     </ToggleButton>
                                 ))}
                             </ToggleButtonGroup>
                             <TextField size="small" type="date" value={filters.from}
                                 onChange={e => { setPreset(''); setFilters(f => ({ ...f, from: e.target.value })); }}
-                                sx={{ width: 140 }} />
+                                sx={{ width: 130 }} />
                             <Typography variant="caption" color="text.secondary">–</Typography>
                             <TextField size="small" type="date" value={filters.to}
                                 onChange={e => { setPreset(''); setFilters(f => ({ ...f, to: e.target.value })); }}
-                                sx={{ width: 140 }} />
+                                sx={{ width: 130 }} />
                         </Stack>
                     </Box>
 
-                    {/* Filters toggle */}
-                    <Button
-                        size="small"
-                        variant={filtersOpen || activeEntityFilters.length > 0 ? 'contained' : 'outlined'}
-                        startIcon={<FilterIcon />}
-                        onClick={() => setFiltersOpen(o => !o)}
-                        sx={{ height: 37, textTransform: 'none', flexShrink: 0 }}
-                    >
-                        Filters {activeEntityFilters.length > 0 && `(${activeEntityFilters.length})`}
-                    </Button>
+                    {/* Project */}
+                    <Box>
+                        <FilterLabel>Project</FilterLabel>
+                        <TextField select size="small" sx={{ width: 160 }}
+                            value={filters.projectId}
+                            onChange={e => setFilters(f => ({ ...f, projectId: e.target.value, apiKeyId: '' }))}
+                            disabled={refLoading}>
+                            <MenuItem value="">All Projects</MenuItem>
+                            {projects.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+                        </TextField>
+                    </Box>
+
+                    {/* Provider */}
+                    <Box>
+                        <FilterLabel>Provider</FilterLabel>
+                        <TextField select size="small" sx={{ width: 150 }}
+                            value={filters.providerId}
+                            onChange={e => setFilters(f => ({ ...f, providerId: e.target.value, providerAccountId: '' }))}
+                            disabled={refLoading}>
+                            <MenuItem value="">All Providers</MenuItem>
+                            {providers.map(p => <MenuItem key={p.id} value={p.id}>{p.label}</MenuItem>)}
+                        </TextField>
+                    </Box>
+
+                    {/* Account */}
+                    <Box>
+                        <FilterLabel>Account</FilterLabel>
+                        <TextField select size="small" sx={{ width: 160 }}
+                            value={filters.providerAccountId}
+                            onChange={e => setFilters(f => ({ ...f, providerAccountId: e.target.value }))}
+                            disabled={refLoading}>
+                            <MenuItem value="">All Accounts</MenuItem>
+                            {accounts
+                                .filter(a => !filters.providerId || a.providerId === filters.providerId)
+                                .map(a => <MenuItem key={a.id} value={a.id}>{a.label}</MenuItem>)}
+                        </TextField>
+                    </Box>
+
+                    {/* API Key */}
+                    <Box>
+                        <FilterLabel>API Key</FilterLabel>
+                        <Tooltip title={!filters.projectId ? 'Select a project first' : ''} placement="top">
+                            <span>
+                                <TextField select size="small" sx={{ width: 150 }}
+                                    value={filters.apiKeyId}
+                                    onChange={e => setFilters(f => ({ ...f, apiKeyId: e.target.value }))}
+                                    disabled={!filters.projectId}>
+                                    <MenuItem value="">All API Keys</MenuItem>
+                                    {apiKeys.map(k => (
+                                        <MenuItem key={k.id} value={k.id}>
+                                            {k.name ?? k.key.slice(0, 16) + '…'}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </span>
+                        </Tooltip>
+                    </Box>
+
                 </Stack>
-
-                {/* Row 2: Entity filters (collapsible) */}
-                <Collapse in={filtersOpen}>
-                    <Box sx={{ mt: 2.5, pt: 2.5, borderTop: '1px solid', borderColor: 'divider' }}>
-                        <Stack direction="row" flexWrap="wrap" gap={2.5} alignItems="flex-end">
-
-                            {/* Project */}
-                            <Box>
-                                <FilterLabel>Project</FilterLabel>
-                                <TextField select size="small" sx={{ width: 200 }}
-                                    value={filters.projectId}
-                                    onChange={e => setFilters(f => ({ ...f, projectId: e.target.value, apiKeyId: '' }))}
-                                    disabled={refLoading}>
-                                    <MenuItem value="">All Projects</MenuItem>
-                                    {projects.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
-                                </TextField>
-                            </Box>
-
-                            {/* Provider */}
-                            <Box>
-                                <FilterLabel>Provider</FilterLabel>
-                                <TextField select size="small" sx={{ width: 200 }}
-                                    value={filters.providerId}
-                                    onChange={e => setFilters(f => ({ ...f, providerId: e.target.value, providerAccountId: '' }))}
-                                    disabled={refLoading}>
-                                    <MenuItem value="">All Providers</MenuItem>
-                                    {providers.map(p => <MenuItem key={p.id} value={p.id}>{p.label}</MenuItem>)}
-                                </TextField>
-                            </Box>
-
-                            {/* Account — filtered by provider */}
-                            <Box>
-                                <FilterLabel>Account</FilterLabel>
-                                <TextField select size="small" sx={{ width: 200 }}
-                                    value={filters.providerAccountId}
-                                    onChange={e => setFilters(f => ({ ...f, providerAccountId: e.target.value }))}
-                                    disabled={refLoading}>
-                                    <MenuItem value="">All Accounts</MenuItem>
-                                    {accounts
-                                        .filter(a => !filters.providerId || a.providerId === filters.providerId)
-                                        .map(a => <MenuItem key={a.id} value={a.id}>{a.label}</MenuItem>)}
-                                </TextField>
-                            </Box>
-
-                            {/* API Key — requires project */}
-                            <Box>
-                                <FilterLabel>API Key</FilterLabel>
-                                <Tooltip title={!filters.projectId ? 'Select a project first' : ''} placement="top">
-                                    <span>
-                                        <TextField select size="small" sx={{ width: 200 }}
-                                            value={filters.apiKeyId}
-                                            onChange={e => setFilters(f => ({ ...f, apiKeyId: e.target.value }))}
-                                            disabled={!filters.projectId}>
-                                            <MenuItem value="">All API Keys</MenuItem>
-                                            {apiKeys.map(k => (
-                                                <MenuItem key={k.id} value={k.id}>
-                                                    {k.name ?? k.key.slice(0, 16) + '…'}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    </span>
-                                </Tooltip>
-                            </Box>
-
-                        </Stack>
-                    </Box>
-                </Collapse>
             </Paper>
 
             {/* Active filter chips */}
