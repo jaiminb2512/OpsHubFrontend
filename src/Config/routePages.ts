@@ -11,3 +11,4 @@ export const ProvidersPage = lazyPage(() => import('../Pages/Provider/ProvidersP
 export const GlobalProvidersPage = lazyPage(() => import('../Pages/Provider/GlobalProvidersPage'));
 export const CreateGlobalProviderPage = lazyPage(() => import('../Pages/Provider/CreateGlobalProviderPage'));
 export const EmailPage = lazyPage(() => import('../Pages/Email/EmailPage'));
+export const AssetAnalyticsPage = lazyPage(() => import('../Pages/Asset/AssetAnalyticsPage'));

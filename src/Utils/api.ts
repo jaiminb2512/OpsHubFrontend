@@ -197,6 +197,11 @@ export const API_CONFIG: ApiConfig = {
             method: 'DELETE',
             baseUrl: NODEJS_BASE_URL,
         },
+        getAssetUsageAnalytics: {
+            path: '/assets/analytics',
+            method: 'GET',
+            baseUrl: NODEJS_BASE_URL,
+        },
 
         // ============================================
         // IMAGE ENDPOINTS

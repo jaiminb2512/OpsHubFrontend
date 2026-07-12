@@ -107,3 +107,49 @@ export const deleteAssetService = async (id: string): Promise<ApiResponse<null>>
     );
     return response.data;
 };
+
+export type AnalyticsGroupBy = 'project' | 'provider' | 'account' | 'apiKey' | 'assetType' | 'action' | 'status';
+
+export interface AnalyticsRow {
+    projectId?: string | null;
+    providerId?: string | null;
+    providerAccountId?: string | null;
+    apiKeyId?: string | null;
+    assetType?: string | null;
+    action?: string | null;
+    status?: string | null;
+    totalEvents: number;
+    totalSizeBytes: number;
+}
+
+export interface AnalyticsFilters {
+    groupBy?: AnalyticsGroupBy[];
+    from?: string;
+    to?: string;
+    projectId?: string;
+    providerId?: string;
+    providerAccountId?: string;
+    apiKeyId?: string;
+}
+
+/**
+ * Asset usage analytics — group by any combination of dimensions
+ */
+export const getAssetUsageAnalyticsService = async (
+    filters: AnalyticsFilters
+): Promise<ApiResponse<AnalyticsRow[]>> => {
+    const params: Record<string, string> = {};
+    if (filters.groupBy?.length) params.groupBy = filters.groupBy.join(',');
+    if (filters.from) params.from = filters.from;
+    if (filters.to) params.to = filters.to;
+    if (filters.projectId) params.projectId = filters.projectId;
+    if (filters.providerId) params.providerId = filters.providerId;
+    if (filters.providerAccountId) params.providerAccountId = filters.providerAccountId;
+    if (filters.apiKeyId) params.apiKeyId = filters.apiKeyId;
+
+    const response = await apiInstance.get<ApiResponse<AnalyticsRow[]>>(
+        getApiUrl('getAssetUsageAnalytics'),
+        { params }
+    );
+    return response.data;
+};

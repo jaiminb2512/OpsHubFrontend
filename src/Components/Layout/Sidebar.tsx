@@ -25,8 +25,9 @@ import {
   Dashboard as DashboardIcon,
   EventAvailable as AttendanceIcon,
   Language as GlobalProvidersIcon,
+  BarChart as AssetAnalyticsIcon,
 } from '@mui/icons-material';
-import { PROJECT_PATHS, DASHBOARD_PATHS, ATTENDANCE_PATHS } from '../../Path';
+import { PROJECT_PATHS, DASHBOARD_PATHS, ATTENDANCE_PATHS, ASSET_PATHS } from '../../Path';
 import { getUserInfo, type LoginResponse } from '../../Services/ApiServices';
 import { useAuth } from '../../Context/AuthContext';
 
@@ -46,6 +47,7 @@ const NAV_ITEMS = [
   { label: 'API Keys', path: PROJECT_PATHS.API_KEYS, icon: ApiKeyIcon },
   { label: 'Attendance', path: ATTENDANCE_PATHS.VIEW, icon: AttendanceIcon },
   { label: 'Global Providers', path: DASHBOARD_PATHS.GLOBAL_PROVIDERS, icon: GlobalProvidersIcon },
+  { label: 'Asset Analytics', path: ASSET_PATHS.ANALYTICS, icon: AssetAnalyticsIcon },
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }: SidebarProps) => {

@@ -3,3 +3,4 @@ export * from './dashboardPaths';
 export * from './projectPaths';
 export * from './attendancePaths';
 export * from './notificationPaths';
+export * from './assetPaths';
