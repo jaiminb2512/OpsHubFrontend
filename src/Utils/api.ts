@@ -1,5 +1,7 @@
 const NODEJS_BASE_URL = import.meta.env.VITE_NODEJS_BASE_URL;
 
+export const BASE_URL = NODEJS_BASE_URL;
+
 interface EndpointConfig {
     path: string;
     method: string;

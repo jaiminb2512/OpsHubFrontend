@@ -31,9 +31,13 @@ apiInstance.interceptors.response.use(
         return response;
     },
     (error) => {
-        // DEPRECATED: Automatic logout on 401 was causing issues during mandatory flows
-        // (like password reset) and across multiple simultaneous API calls.
-        // Components should now handle authorization errors individually if needed.
+        if (error?.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
+        }
         return Promise.reject(error);
     }
 );

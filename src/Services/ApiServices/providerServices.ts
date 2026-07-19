@@ -1,7 +1,6 @@
 import apiInstance from '../../Utils/ApiUtils';
 import type { ApiResponse } from '../../Utils/ApiUtils';
-
-const BASE = import.meta.env.VITE_NODEJS_BASE_URL;
+import { BASE_URL as BASE } from '../../Utils/api';
 
 const url = (projectId: string, tail = '') =>
     `${BASE}/projects/${projectId}/providers${tail}`;

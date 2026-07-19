@@ -27,6 +27,7 @@ export interface LoginResponse {
   needToResetPassword?: boolean;
   isSuperAdmin?: boolean;
   isGlobal: boolean;
+  isCompanyOnlyUser?: boolean;
   createdAt: string;
 }
 

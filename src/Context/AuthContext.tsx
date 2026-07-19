@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isLoading: isAuthChecked ? false : isLoading,
         needToResetPassword,
         userInfo,
-        hasRoleContextSelected: true,
+        hasRoleContextSelected: false,
         roleContexts: [],
         checkAuth,
         login,
